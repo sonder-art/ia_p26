@@ -3,7 +3,8 @@
 > **⚠️ Nota Importante:** Esta guía proporciona instrucciones generales. Cada computadora es diferente (marca, modelo, versión de BIOS/UEFI, componentes).
 >
 > **No sigas instrucciones a ciegas.** Utiliza esta guía como mapa y apóyate en los LLMs (como ChatGPT o Gemini) para los detalles específicos de tu máquina.
-
+> **Back-up** Aunque realices esta parte o estes listo no olvides de realizar tambien la guia 'clase/a_stack/02_b_sistema_operativo_browser.md' para siempre tener un back-up de donde seguir la calse o realizar tus tareas.
+ 
 ## Opción A: WSL2 (Windows Subsystem for Linux) - Recomendada
 
 WSL2 te permite correr Linux *dentro* de Windows. Es la opción más segura y fácil si nunca has usado Linux.

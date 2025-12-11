@@ -1,5 +1,5 @@
 # Introduccion al Stack tecnologico
-**Codigo render**: para renderizar la pagina de markdown en vscode o simialres usen `ctr+shift+v`  
+**Codigo render**: para renderizar la pagina de markdown en vscode o simialres usen `ctrl+shift+v`. Si no funciona busca en google o preguntale a un llm como renderizarlo para tu caso especifico (sistema operativo e IDE que estas usando)  
 
 ## Tarea: Configuración de Cuentas
 
@@ -29,29 +29,21 @@ Utilizaremos DataCamp para cursos prácticos. **Es obligatorio usar tu correo in
     *   Te sugiero probar con el curso de una futura tarea, solo verifica que puedas acceder al curso (no es tarea inmediata): [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers).
 
 ## Stack
-Para la clase necesitamos aprender a utilizar 4 herramientas principales:
+Para la clase necesitamos aprender a utilizar 5 herramientas principales:
 
 1. **LLMs**: Large Language Models
-2. **Python**: Lenguaje de programacion
+2. **Sistema Operativo**: Ubuntu o Linux o Mac o WSL2
 3. **Github**: Servicio y sistema (git) de control de versiones
 4. **VSCode/Cursor**: Editor de codigo con IA o LLM itegrada
+5. **Python**: Lenguaje de programacion
 
 Estas herramientas nos permitiran crear un pipeline de trabajo en el que podamos aprender sobre inteligencia artificial. Per-se no estudiaremos a detalle cada una de estas herramientas, ni entraremos mucho en su teoria particular, sin embargo aprender a utilizarlas es escencial.
+
 
 ### 1. LLMs (Large Language Models)
 Son modelos de inteligencia artificial entrenados con cantidades masivas de texto. Tienen la capacidad de entender y generar lenguaje humano, lo que nos permite interactuar con ellos para obtener respuestas, generar código, resumir textos y mucho más. Ejemplos populares incluyen Gemini, GPT, Claude y Llama.
 
-### 2. VSCode / Cursor
-**VSCode** es un editor de código ligero y potente creado por Microsoft, muy popular por su extensibilidad. **Cursor** es un editor basado en VSCode que integra inteligencia artificial de forma nativa, permitiéndonos escribir, refactorizar y entender código mucho más rápido con la ayuda de LLMs.
-
-### 3. Github
-Es una plataforma en la nube que utiliza Git, un sistema de control de versiones. Nos permite guardar nuestro código, llevar un historial de cambios y colaborar con otros desarrolladores. Es fundamental para compartir proyectos y trabajar en equipo de manera organizada.  
-
-### 4. Python
-Es un lenguaje de programación de alto nivel, conocido por su sintaxis clara y legible. Es el lenguaje estándar en la industria de la Inteligencia Artificial y Ciencia de Datos debido a su enorme ecosistema de librerías especializadas (como PyTorch, TensorFlow y Pandas) y su facilidad de uso.
-
-
-### A. Sistema Operativo
+### 2. Sistema Operativo
 Recomiendo encarecidamente trabajar en un entorno basado en Unix (Linux o macOS) para el desarrollo de IA y programación en general. Hay una guia mas general y detallada en las siguientes secciones.
 
 *   **Usuarios de Windows:** La mejor opción es instalar **WSL2 (Windows Subsystem for Linux 2)**. Esto te permite ejecutar un entorno Linux completo integrado directamente en Windows.
@@ -71,3 +63,14 @@ Si no tienes una computadora personal adecuada o no puedes realizar instalacione
 *   **Google Colab:** Ideal para notebooks de Python y ciencia de datos.
 
 👉 **Guía Detallada:** Consulta [`clase/a_stack/b_sistema_operativo_browser.md`](./b_sistema_operativo_browser.md) para aprender a configurar estos entornos remotos.
+
+
+### 3. Github
+Es una plataforma en la nube que utiliza Git, un sistema de control de versiones. Nos permite guardar nuestro código, llevar un historial de cambios y colaborar con otros desarrolladores. Es fundamental para compartir proyectos y trabajar en equipo de manera organizada.  
+
+### 4. VSCode / Cursor
+**VSCode** es un editor de código ligero y potente creado por Microsoft, muy popular por su extensibilidad. **Cursor** es un editor basado en VSCode que integra inteligencia artificial de forma nativa, permitiéndonos escribir, refactorizar y entender código mucho más rápido con la ayuda de LLMs.
+
+### 5. Python
+Es un lenguaje de programación de alto nivel, conocido por su sintaxis clara y legible. Es el lenguaje estándar en la industria de la Inteligencia Artificial y Ciencia de Datos debido a su enorme ecosistema de librerías especializadas (como PyTorch, TensorFlow y Pandas) y su facilidad de uso.
+
