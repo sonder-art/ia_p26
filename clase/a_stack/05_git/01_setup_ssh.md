@@ -6,14 +6,14 @@
 Para comprender los conceptos fundamentales, completa el siguiente curso:
 *   [Introduction to GitHub Concepts](https://app.datacamp.com/learn/courses/introduction-to-github-concepts)
 
-### 2. Configuración de Git, GitHub y SSH Keys
+### 2. Configuración del Entorno
 Una vez finalizado el curso de DataCamp, lee detenidamente **este documento** (secciones inferiores). Aquí entenderás la importancia de GitHub en el curso y aprenderás a configurar tu entorno: Git, tu cuenta de GitHub y, **muy importante**, tus llaves SSH.
 
 > **Recomendación:** Utiliza LLMs (como Cursor o ChatGPT) para guiarte en la configuración. Sin embargo, lee primero toda la documentación para saber qué pedir y verificar que todo esté correcto.
 
 ### 3. Entender el Flujo de Trabajo (Examen)
 El método de trabajo del curso está resumido en:
-👉 **[04_c_flujo_git.md](./04_c_flujo_git.md)**
+👉 **[03_workflow.md](./03_workflow.md)**
 
 Es crucial que comprendas este flujo a detalle. **Habrá un examen sobre este tema.**
 El examen se enfocará en:
@@ -21,13 +21,13 @@ El examen se enfocará en:
 *   Qué está permitido y qué está prohibido (Zona Prohibida vs Zona Segura).
 *   Comandos básicos.
 
-Si dominas el contenido de **[04_c_flujo_git.md](./04_c_flujo_git.md)**, no tendrás problemas. Aunque los agentes de IA pueden ejecutar los comandos por ti, tú eres el responsable de supervisar que sigan las reglas.
+Si dominas el contenido de **[03_workflow.md](./03_workflow.md)**, no tendrás problemas. Aunque los agentes de IA pueden ejecutar los comandos por ti, tú eres el responsable de supervisar que sigan las reglas.
 
 ### 4. Tarea: Entregar Certificaciones
 La tarea consiste en crear tu espacio personal y enviar un Pull Request con tus evidencias.
 
 Toda la guía paso a paso está aquí:
-👉 **[Instrucciones de la Tarea 01: Certificaciones](./04_e_tarea_certificaciones.md)**
+👉 **[Instrucciones de la Tarea 01: Certificaciones](./05_task_certifications.md)**
 
 Pasos generales:
 1.  Crear tu carpeta personal en `estudiantes/`.
@@ -39,9 +39,9 @@ Pasos generales:
 ### Recursos de Aprendizaje (Lectura Obligatoria)
 Antes de intentar la tarea, asegúrate de entender los conceptos leyendo estos documentos en orden:
 
-1.  **[04_a_github.md](./04_a_github.md)** (Este documento): Instala Git y configura tus SSH Keys.
-2.  **[04_b_github.md](./04_b_github.md)**: Configura el repositorio, haz el Fork, el Clone y crea tu carpeta personal.
-3.  **[04_c_flujo_git.md](./04_c_flujo_git.md)**: Aprende el ciclo de trabajo diario (Branches, Commits, Push).
+1.  **[01_setup_ssh.md](./01_setup_ssh.md)** (Este documento): Instala Git y configura tus SSH Keys.
+2.  **[02_repo_structure.md](./02_repo_structure.md)**: Configura el repositorio, haz el Fork, el Clone y crea tu carpeta personal.
+3.  **[03_workflow.md](./03_workflow.md)**: Aprende el ciclo de trabajo diario (Branches, Commits, Push).
 
 ### 3. Entregable (Tu Primer PR)
 Para completar esta tarea, debes lograr lo siguiente:
@@ -49,7 +49,7 @@ Para completar esta tarea, debes lograr lo siguiente:
 2.  Tener tu carpeta `estudiantes/tu_usuario/` creada con un archivo `.gitkeep`.
 3.  Hacer un **Pull Request** de tu rama `tarea-1-setup` (o similar) hacia el repositorio del profesor, conteniendo únicamente tu nueva carpeta.
 
-> **Recurso Extra:** Usa el [Cheatsheet de Git](./04_d_cheatsheet_git_github.md) para referencia rápida de comandos.
+> **Recurso Extra:** Usa el [Cheatsheet de Git](./04_cheatsheet.md) para referencia rápida de comandos.
 
 ## ¿Qué es esto y por qué lo necesitamos?
 

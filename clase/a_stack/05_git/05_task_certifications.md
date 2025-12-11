@@ -14,7 +14,7 @@ Antes de empezar, abre tu chat con ChatGPT, Claude o Gemini. Para que te ayuden 
 > "Hola, estoy tomando un curso de programación. Estamos usando un flujo de trabajo específico con Git y GitHub.
 > Por favor, analiza los siguientes documentos para entender cómo debo trabajar:"
 >
-> *(Copia y pega el contenido de `clase/a_stack/04_b_github.md` y `clase/a_stack/04_c_flujo_git.md` en el chat)*.
+> *(Copia y pega el contenido de `clase/a_stack/05_git/02_repo_structure.md` y `clase/a_stack/05_git/03_workflow.md` en el chat)*. O si estas usando cursor referencia el archivo `clase/a_stack/05_git/04_cheatsheet.md` para comandos basicos de git.
 >
 > "A partir de ahora, ayúdame a seguir este flujo estrictamente. Si tengo un error de git, explícame qué pasó y cómo arreglarlo respetando estas reglas (usar ramas, no tocar la carpeta 'clase', etc)."
 
@@ -23,7 +23,7 @@ Antes de empezar, abre tu chat con ChatGPT, Claude o Gemini. Para que te ayuden 
 ## Instrucciones Paso a Paso
 
 ### 1. Preparación del Entorno
-Si aún no has clonado el repositorio y configurado el upstream, hazlo ahora (ver [04_b_github.md](./04_b_github.md)).
+Si aún no has clonado el repositorio y configurado el upstream, hazlo ahora (ver [02_repo_structure.md](./02_repo_structure.md)).
 
 #### Opción Automática (Recomendada)
 Vamos a usar el script mágico `flow.sh`. Primero, necesitamos darle permisos de ejecución (hacerlo funcionar).
@@ -120,7 +120,7 @@ git push origin tarea-01-certificaciones
 > *"Quiero subir mis cambios manualmente. Estoy en la rama 'tarea-01-certificaciones'. ¿Cuáles son los comandos `git add`, `git commit` y `git push` exactos que debo usar para subir solo la carpeta 'estudiantes/mi_usuario'?"*
 
 ### 7. Crear el Pull Request (La Entrega)
-Ve a GitHub y crea el Pull Request siguiendo las reglas de [04_c_flujo_git.md](./04_c_flujo_git.md).
+Ve a GitHub y crea el Pull Request siguiendo las reglas de [03_workflow.md](./03_workflow.md).
 
 *   **Base repository:** `sonder-art/ia_p26` (main)
 *   **Head repository:** `tu-usuario/ia_p26` (tarea-01-certificaciones)

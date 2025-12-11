@@ -1,7 +1,7 @@
 # Large Language Models (LLMs)
 
 ## Tarea
-Lee este documento y posteriormente completa el siguiente curso:  
+
 Para profundizar en el uso de asistentes de IA para programar, completa el siguiente curso:
 *   [AI Assisted Coding for Developers](https://app.datacamp.com/learn/courses/ai-assisted-coding-for-developers)
 

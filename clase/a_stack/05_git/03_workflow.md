@@ -15,7 +15,7 @@ Este documento describe el ciclo de vida completo para trabajar en una tarea, de
 ## Automatización con `flow.sh`
 
 Para facilitar este proceso, hemos creado un script que automatiza estos comandos.
-Consulta la guía completa en: **[clase/README_FLOW.md](../README_FLOW.md)**
+Consulta la guía completa en: **[clase/README_FLOW.md](../../README_FLOW.md)**
 
 Puedes usarlo con tu LLM:
 > "Usa el script `clase/flow.sh` para crear una rama llamada 'tarea-2' y sincronizar el repo."
