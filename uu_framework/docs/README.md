@@ -1,188 +1,162 @@
 # uu_framework
 
-Generador de sitios estaticos para materiales de cursos universitarios.
+Static site generator for university course materials.
 
-## Descripcion
+## Overview
 
-uu_framework es un framework ligero para renderizar notas de clase en Markdown como un sitio web estatico. Usa Eleventy + Tailwind CSS + Python para preprocesamiento.
+uu_framework is a lightweight framework that renders Markdown course notes into a static website. It uses Eleventy + Tailwind CSS + Python preprocessing.
 
-## Requisitos
+## Documentation
 
-- Docker (recomendado) o:
+| Audience | Language | Path |
+|----------|----------|------|
+| **Developers** | English | [dev/](./dev/00_index.md) |
+| **Professors** | Spanish | [profesor/](./profesor/00_index.md) |
+| **Students** | Spanish | [estudiante/](./estudiante/00_index.md) |
+
+### Developer Documentation
+
+- [Architecture](./dev/01_architecture.md) - Complete data flow from markdown to HTML
+- [Preprocessing](./dev/02_preprocessing.md) - Python scripts documentation
+- [Eleventy](./dev/03_eleventy.md) - Filters, collections, transforms
+- [Theming](./dev/04_theming.md) - CSS variables, themes, accessibility
+- [Components](./dev/05_components.md) - All 6 component types
+- [Templates](./dev/06_templates.md) - Nunjucks layouts and macros
+- [Troubleshooting](./dev/07_troubleshooting.md) - Common issues and solutions
+
+### Professor Documentation (Spanish)
+
+- [Estructura](./profesor/01_estructura.md) - Directory structure and naming
+- [Frontmatter](./profesor/02_frontmatter.md) - YAML metadata
+- [Componentes](./profesor/03_componentes.md) - Homework, exercises, prompts
+- [Mermaid](./profesor/04_mermaid.md) - Diagrams
+- [Buenas Practicas](./profesor/05_buenas_practicas.md) - Recommendations
+
+### Student Documentation (Spanish)
+
+- [Navegacion](./estudiante/01_navegacion.md) - How to navigate the site
+- [Accesibilidad](./estudiante/02_accesibilidad.md) - Themes, fonts, sizes
+- [Tareas](./estudiante/03_tareas.md) - How to submit assignments
+
+## Quick Start
+
+### Requirements
+
+- Docker (recommended) or:
   - Node.js 18+
   - Python 3.11+
   - npm
 
-## Estructura del Proyecto
+### Project Structure
 
 ```
 uu_framework/
 ├── config/
-│   ├── site.yaml           # Configuracion principal
-│   └── themes/             # Temas de colores
+│   ├── site.yaml           # Main configuration
+│   └── themes/             # Color themes
 ├── scripts/
-│   ├── preprocess.py       # Orquestador de preprocesamiento
-│   ├── extract_metadata.py # Extrae metadatos de archivos
-│   ├── generate_indices.py # Genera arbol de jerarquia
-│   ├── aggregate_tasks.py  # Agrega tareas/examenes
-│   └── sync_check.py       # Verifica actualizaciones
+│   ├── preprocess.py       # Preprocessing orchestrator
+│   ├── extract_metadata.py # Extract file metadata
+│   ├── generate_indices.py # Generate hierarchy tree
+│   ├── aggregate_tasks.py  # Aggregate tasks/exams
+│   └── sync_check.py       # Check for updates
 ├── eleventy/
-│   ├── .eleventy.js        # Configuracion de Eleventy
-│   ├── package.json        # Dependencias de Node
-│   ├── _includes/          # Templates Nunjucks
-│   └── src/css/            # Estilos CSS
+│   ├── .eleventy.js        # Eleventy configuration
+│   ├── package.json        # Node dependencies
+│   ├── _includes/          # Nunjucks templates
+│   └── src/css/            # CSS styles
 ├── docker/
 │   ├── Dockerfile
 │   └── docker-compose.yaml
 └── docs/
-    ├── README.md           # Este archivo
-    └── GUIA_ESTUDIANTE.md  # Guia para estudiantes
+    ├── README.md           # This file
+    ├── dev/                # Developer documentation
+    ├── profesor/           # Professor documentation
+    └── estudiante/         # Student documentation
 ```
 
-## Uso con Docker
+## Docker Usage
 
-### Construir el sitio
+### Build the site
 
 ```bash
-cd uu_framework/docker
-docker compose run build
+docker compose -f uu_framework/docker/docker-compose.yaml run build
 ```
 
-### Servidor de desarrollo
+### Development server
 
 ```bash
-cd uu_framework/docker
-docker compose up dev
-# Visita http://localhost:8080
+docker compose -f uu_framework/docker/docker-compose.yaml up dev
+# Visit http://localhost:3000/ia_p26/
 ```
 
-## Uso sin Docker
-
-### Instalacion
+## Without Docker
 
 ```bash
-# Instalar dependencias de Python
+# Install Python dependencies
 pip install pyyaml
 
-# Instalar dependencias de Node
+# Install Node dependencies
 cd uu_framework/eleventy
 npm install
-```
 
-### Construir
-
-```bash
-# Preprocesamiento
+# Preprocessing
 python3 uu_framework/scripts/preprocess.py
 
-# Construir sitio
-cd uu_framework/eleventy
+# Build site
 npx @11ty/eleventy
 
-# Construir CSS
+# Build CSS
 npx tailwindcss -i ./src/css/main.css -o ../../_site/css/styles.css --minify
 ```
 
-## Convencion de Nombres de Archivos
+## File Naming Convention
 
-| Patron | Significado |
-|--------|-------------|
-| `00_*.md` | Archivo indice |
-| `01_`, `02_` | Capitulos (orden numerico) |
-| `01_a_`, `01_b_` | Sub-capitulos (orden alfabetico) |
-| `A_`, `B_` | Apendices |
-| `code/` | Directorio de codigo Python |
+| Pattern | Meaning |
+|---------|---------|
+| `00_*.md` | Index file |
+| `01_`, `02_` | Chapters (numeric order) |
+| `01_a_`, `01_b_` | Sub-chapters (alphabetic) |
+| `A_`, `B_` | Appendices |
+| `code/` | Python code directory |
 
-## Frontmatter YAML
+See [dev/01_architecture.md](./dev/01_architecture.md) for complete details.
 
-```yaml
----
-title: "Titulo del documento"    # Requerido
-type: lesson                     # Opcional: lesson|homework|exam|project
-date: 2026-01-15                 # Opcional
-summary: "Resumen breve"         # Opcional
-tags: [tag1, tag2]               # Opcional
-due_date: 2026-02-01             # Opcional (para tareas)
----
-```
-
-## Componentes Inline
+## Component Syntax
 
 ```markdown
-:::homework{id="tarea-01" title="Mi Tarea" due="2026-02-01"}
-Instrucciones de la tarea...
+:::homework{id="task-01" title="My Task" due="2026-02-01"}
+Task instructions...
 :::
 
-:::exercise{title="Ejercicio"}
-Pasos del ejercicio...
+:::exercise{title="Exercise"}
+Steps...
 :::
 
-:::prompt{title="Prompt para LLM"}
-Texto del prompt...
-:::
-
-:::example{title="Ejemplo"}
-Contenido del ejemplo...
-:::
-
-:::exam{id="parcial-01" title="Primer Parcial"}
-Informacion del examen...
-:::
-
-:::project{id="proyecto-final" title="Proyecto Final" due="2026-05-15"}
-Descripcion del proyecto...
+:::prompt{title="LLM Prompt"}
+Prompt text...
 :::
 ```
 
-## Temas
+See [dev/05_components.md](./dev/05_components.md) for all 6 component types.
 
-### Eva Unit-01 (Predeterminado)
+## Themes
 
-Tema oscuro inspirado en Evangelion Unit-01. Colores: purpura profundo con acentos verde neon.
+- **Eva Unit-01** (default): Dark purple with neon green accents
+- **Light**: Light theme for bright environments
+- **OpenDyslexic**: Accessible font toggle
 
-### Light
+See [dev/04_theming.md](./dev/04_theming.md) for theming details.
 
-Tema claro para mejor legibilidad en ambientes iluminados.
+## Deployment
 
-### OpenDyslexic
+The site deploys automatically via GitHub Actions on push to `main`.
 
-Toggle de fuente accesible para usuarios con dislexia.
+Live at: `https://{domain}/{base_url}/`
 
-## Configuracion
+## Development
 
-Edita `uu_framework/config/site.yaml`:
-
-```yaml
-site:
-  name: "Nombre del Curso"
-  base_url: "/nombre-repo"
-  domain: "tu-dominio.com"
-
-source:
-  content_dir: "clase"
-  exclude:
-    - "archivos-a-ignorar"
-
-theme:
-  default: "eva01"
-```
-
-## Despliegue
-
-El sitio se despliega automaticamente via GitHub Actions cuando se hace push a la rama `main`.
-
-El sitio estara disponible en: `https://{domain}/{base_url}/`
-
-## Desarrollo
-
-### Agregar un nuevo tema
-
-1. Crea `uu_framework/config/themes/mi-tema.yaml`
-2. Crea `uu_framework/eleventy/src/css/themes/mi-tema.css`
-3. Agrega el tema a `site.yaml` en `theme.available`
-
-### Agregar un nuevo componente
-
-1. Agrega el tipo en `.eleventy.js` en `componentTypes`
-2. Crea el template en `_includes/components/`
-3. Agrega estilos en `src/css/main.css`
+For detailed development guides, see:
+- [Adding new components](./dev/05_components.md#adding-new-component-types)
+- [Adding new themes](./dev/04_theming.md)
+- [Troubleshooting](./dev/07_troubleshooting.md)

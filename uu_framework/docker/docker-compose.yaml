@@ -8,9 +8,10 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro           # Mount content as read-only
-      - ../../_site:/app/_site              # Output directory
+      - ../../clase:/app/clase                # Mount content (writable for z_documentacion)
+      - ../../_site:/app/_site                # Output directory
       - ../../uu_framework/config:/app/uu_framework/config:ro  # Config
+      - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
       - ../../uu_framework/eleventy/_data:/app/uu_framework/eleventy/_data  # Data files
       - ../../uu_framework/eleventy/_includes:/app/uu_framework/eleventy/_includes:ro  # Templates
       - ../../uu_framework/eleventy/tailwind.config.js:/app/uu_framework/eleventy/tailwind.config.js:ro  # Tailwind config
@@ -23,9 +24,10 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro
+      - ../../clase:/app/clase                # Mount content (writable for z_documentacion)
       - ../../_site:/app/_site
       - ../../uu_framework/config:/app/uu_framework/config:ro
+      - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
       - ../../uu_framework/eleventy/_data:/app/uu_framework/eleventy/_data
       - ../../uu_framework/eleventy/_includes:/app/uu_framework/eleventy/_includes:ro
       - ../../uu_framework/eleventy/src:/app/uu_framework/eleventy/src:ro
@@ -47,7 +49,8 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro
+      - ../../clase:/app/clase                # Mount content (writable for z_documentacion)
+      - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
       - ../../uu_framework/eleventy/_data:/app/uu_framework/eleventy/_data
       - ../../uu_framework/config:/app/uu_framework/config:ro
     command: ["sh", "-c", "python3 uu_framework/scripts/preprocess.py --verbose"]

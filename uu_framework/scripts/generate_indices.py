@@ -26,6 +26,8 @@ def get_sort_key(name: str) -> tuple:
     - (0, num, 1, letter) for lettered sub-items (01_a_, 01_b_)
     - (1, ord, 0, '') for appendices (A_, B_)
     - (2, 999, 0, name) for other items
+    - (3, 0, 0, '') for code directories
+    - (4, ord, 0, '') for z_ prefixed items (documentation, always last)
     """
     # Numbered items: 01_, 02_, etc.
     match = re.match(r'^(\d+)_', name)
@@ -37,10 +39,15 @@ def get_sort_key(name: str) -> tuple:
             return (0, num, 1, letter_match.group(1))
         return (0, num, 0, '')
 
-    # Appendices: A_, B_, etc.
+    # Appendices: A_, B_, etc. (uppercase letters)
     match = re.match(r'^([A-Z])_', name)
     if match:
         return (1, ord(match.group(1)), 0, '')
+
+    # z_ prefixed items (documentation) - always last
+    match = re.match(r'^z_', name, re.IGNORECASE)
+    if match:
+        return (4, ord(name[2].lower()) if len(name) > 2 else 0, 0, name.lower())
 
     # Special directories (code, etc.)
     if name.lower() == 'code':

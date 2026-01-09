@@ -4,6 +4,9 @@ _backup_clase_*/
 node_modules/
 uu_framework/eleventy/_data/*.json
 !uu_framework/eleventy/_data/.gitkeep
+# Generated documentation directory (copied from uu_framework/docs during build)
+clase/z_documentacion/
+clase/c_documentacion/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

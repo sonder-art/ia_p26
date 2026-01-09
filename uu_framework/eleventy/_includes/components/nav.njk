@@ -52,13 +52,21 @@
 {% set childCount = countVisibleChildren(item.children) | trim | int %}
 {% set thisUrl = itemUrl(item) | trim %}
 {% set activeState = isActive(thisUrl, currentUrl) | trim %}
+{% set navPath = item.path | default(item.name) %}
 
-<div class="nav-item" data-expanded="true" data-depth="{{ depth }}" data-active="{{ activeState }}">
+<div class="nav-item"
+     data-nav-path="{{ navPath }}"
+     data-expanded="false"
+     data-depth="{{ depth }}"
+     data-active="{{ activeState }}"
+     role="treeitem"
+     aria-expanded="false">
   <div class="flex items-start group">
     {# Expand/collapse toggle #}
     {% if childCount > 0 %}
     <button class="nav-toggle p-0.5 mt-1 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors flex-shrink-0"
-            onclick="this.closest('.nav-item').dataset.expanded = this.closest('.nav-item').dataset.expanded === 'true' ? 'false' : 'true'">
+            aria-label="Toggle {{ item.title | cleanNavTitle | trim | default(item.name) }}"
+            onclick="toggleNavSection('{{ navPath }}')">
       <svg class="w-3 h-3 transform transition-transform nav-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
@@ -69,6 +77,7 @@
 
     {# Nav link with number and title #}
     <a href="{{ thisUrl }}"
+       {% if activeState == 'current' %}aria-current="page"{% endif %}
        class="flex-1 min-w-0 flex items-baseline px-1.5 py-1 rounded text-sm transition-colors
               {% if activeState == 'current' %}bg-accent/15 text-accent border-l-2 border-accent -ml-0.5 pl-2
               {% elif activeState == 'ancestor' %}text-text bg-bg-tertiary/50
@@ -80,7 +89,8 @@
 
   {# Render children recursively #}
   {% if childCount > 0 %}
-  <div class="nav-children ml-4 mt-0.5 pl-2 border-l border-border/50 space-y-0.5">
+  <div class="nav-children ml-4 mt-0.5 pl-2 border-l border-border/50 space-y-0.5"
+       role="group">
     {% set childIndex = 0 %}
     {% for child in item.children %}
       {% if isVisible(child) | trim == "true" %}
@@ -144,7 +154,7 @@
 <div class="text-xs text-text-muted uppercase tracking-wide px-2 mb-2">Contenido</div>
 
 {# Main navigation #}
-<div class="nav-root space-y-1">
+<div class="nav-root space-y-1" role="tree" aria-label="Contenido del curso">
   {% if hierarchy and hierarchy.children %}
     {% set topIndex = 0 %}
     {% for item in hierarchy.children %}
@@ -159,8 +169,30 @@
 </div>
 
 <style>
-  /* Collapsed state */
-  .nav-item[data-expanded="false"] > .nav-children { display: none; }
+  /* Children container with smooth transition */
+  .nav-children {
+    overflow: hidden;
+    transition: max-height 0.2s ease-out, opacity 0.2s ease-out;
+  }
+
+  /* Collapsed state - hide children smoothly */
+  .nav-item[data-expanded="false"] > .nav-children {
+    max-height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Expanded state - show children */
+  .nav-item[data-expanded="true"] > .nav-children {
+    max-height: 2000px; /* Large enough for deep nesting */
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Arrow rotation with transition */
+  .nav-arrow {
+    transition: transform 0.2s ease-out;
+  }
   .nav-item[data-expanded="false"] > div > button .nav-arrow { transform: rotate(0deg); }
   .nav-item[data-expanded="true"] > div > button .nav-arrow { transform: rotate(90deg); }
 

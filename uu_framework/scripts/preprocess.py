@@ -4,9 +4,10 @@ uu_framework Preprocessing Script
 
 Main orchestrator for preprocessing course content.
 Runs all preprocessing steps in order:
-1. Extract metadata from markdown files
-2. Generate hierarchy tree
-3. Aggregate tasks (homework, exams, projects)
+1. Copy documentation to processing location
+2. Extract metadata from markdown files
+3. Generate hierarchy tree
+4. Aggregate tasks (homework, exams, projects)
 
 Usage:
     python3 preprocess.py [--config CONFIG_PATH] [--content CONTENT_DIR]
@@ -16,6 +17,7 @@ import os
 import sys
 import argparse
 import json
+import shutil
 from pathlib import Path
 
 # Add scripts directory to path
@@ -42,6 +44,65 @@ def load_config(config_path: Path) -> dict:
         return {}
 
 
+def copy_docs_to_content(docs_dir: Path, content_dir: Path, verbose: bool = False) -> bool:
+    """
+    Copy documentation from uu_framework/docs/ to content directory for processing.
+
+    Creates z_documentacion/ directory with the docs structure.
+    Returns True if docs were copied, False otherwise.
+    """
+    if not docs_dir.exists():
+        if verbose:
+            print(f"      Docs directory not found: {docs_dir}")
+        return False
+
+    target_dir = content_dir / 'z_documentacion'
+
+    # Remove existing target if it exists (clean copy)
+    if target_dir.exists():
+        shutil.rmtree(target_dir)
+
+    # Copy the docs directory structure
+    # We only copy the subdirectories (dev, profesor, estudiante), not README.md etc.
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    copied_count = 0
+    for item in docs_dir.iterdir():
+        if item.is_dir() and item.name in ['dev', 'profesor', 'estudiante']:
+            dest = target_dir / item.name
+            shutil.copytree(item, dest)
+            copied_count += 1
+            if verbose:
+                print(f"      Copied: {item.name}/")
+
+    if copied_count > 0:
+        # Create index file for the documentation section
+        index_content = """---
+title: "Documentación del Framework"
+---
+
+# Documentación
+
+Guías y documentación del framework uu_framework.
+
+## Secciones
+
+| Sección | Idioma | Descripción |
+|---------|--------|-------------|
+| [Desarrollo](./dev/) | English | Technical documentation for developers |
+| [Profesor](./profesor/) | Español | Guía para crear contenido |
+| [Estudiante](./estudiante/) | Español | Guía de uso del sitio |
+"""
+        index_path = target_dir / '00_index.md'
+        with open(index_path, 'w', encoding='utf-8') as f:
+            f.write(index_content)
+
+        if verbose:
+            print(f"      Created: 00_index.md")
+
+    return copied_count > 0
+
+
 def main():
     parser = argparse.ArgumentParser(description='uu_framework preprocessor')
     parser.add_argument('--config', type=Path,
@@ -50,6 +111,9 @@ def main():
     parser.add_argument('--content', type=Path,
                         default=Path('clase'),
                         help='Path to content directory')
+    parser.add_argument('--docs', type=Path,
+                        default=Path('uu_framework/docs'),
+                        help='Path to documentation directory')
     parser.add_argument('--output', type=Path,
                         default=Path('uu_framework/eleventy/_data'),
                         help='Path to output data directory')
@@ -73,8 +137,15 @@ def main():
     print("uu_framework Preprocessing")
     print("=" * 60)
 
+    # Step 0: Copy documentation to content directory
+    print("\n[0/4] Copying documentation to content directory...")
+    if copy_docs_to_content(args.docs, args.content, args.verbose):
+        print("      Documentation copied to z_documentacion/")
+    else:
+        print("      No documentation found or copied")
+
     # Step 1: Extract metadata from all markdown files
-    print("\n[1/3] Extracting metadata from markdown files...")
+    print("\n[1/4] Extracting metadata from markdown files...")
     metadata = extract_all_metadata(args.content, exclude, args.verbose)
 
     # Save metadata
@@ -84,7 +155,7 @@ def main():
     print(f"      Saved {len(metadata)} file metadata records to {metadata_path}")
 
     # Step 2: Generate hierarchy tree
-    print("\n[2/3] Generating hierarchy tree...")
+    print("\n[2/4] Generating hierarchy tree...")
     hierarchy = generate_hierarchy(args.content, metadata, exclude, args.verbose)
 
     # Save hierarchy
@@ -94,7 +165,7 @@ def main():
     print(f"      Saved hierarchy to {hierarchy_path}")
 
     # Step 3: Aggregate tasks (homework, exams, projects)
-    print("\n[3/3] Aggregating tasks...")
+    print("\n[3/4] Aggregating tasks...")
     tasks = aggregate_all_tasks(args.content, metadata, args.verbose)
 
     # Save tasks

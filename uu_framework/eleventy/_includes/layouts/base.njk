@@ -192,7 +192,7 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto py-3 px-2">
+      <nav id="sidebar-nav" class="flex-1 overflow-y-auto py-3 px-2">
         {% include "components/nav.njk" %}
       </nav>
 
@@ -530,6 +530,35 @@
         sidebar.classList.add('collapsed');
       }
 
+      // Sidebar nav scroll position persistence
+      const sidebarNav = document.getElementById('sidebar-nav');
+
+      // Restore scroll position on load
+      const savedScrollPos = localStorage.getItem('uu-nav-scroll');
+      if (savedScrollPos && sidebarNav) {
+        sidebarNav.scrollTop = parseInt(savedScrollPos, 10);
+      }
+
+      // Save scroll position before navigating
+      if (sidebarNav) {
+        // Save on any link click in the sidebar
+        sidebarNav.addEventListener('click', (e) => {
+          const link = e.target.closest('a');
+          if (link) {
+            localStorage.setItem('uu-nav-scroll', sidebarNav.scrollTop);
+          }
+        });
+
+        // Also save periodically while scrolling (debounced)
+        let scrollTimeout;
+        sidebarNav.addEventListener('scroll', () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            localStorage.setItem('uu-nav-scroll', sidebarNav.scrollTop);
+          }, 100);
+        });
+      }
+
       // Theme toggle
       function toggleTheme() {
         const isEva = document.documentElement.classList.contains('theme-eva01');
@@ -585,6 +614,134 @@
 
       sizeToggle.addEventListener('click', toggleSize);
       sizeToggleMini.addEventListener('click', toggleSize);
+
+      // ============================================
+      // Navigation expand/collapse state management
+      // ============================================
+      const NAV_STATE_KEY = 'uu-nav-expanded';
+
+      function getExpandedSections() {
+        try {
+          return JSON.parse(localStorage.getItem(NAV_STATE_KEY)) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveExpandedSections() {
+        const expanded = [...document.querySelectorAll('[data-nav-path][data-expanded="true"]')]
+          .map(el => el.dataset.navPath);
+        localStorage.setItem(NAV_STATE_KEY, JSON.stringify(expanded));
+      }
+
+      // Global function called by toggle buttons
+      window.toggleNavSection = function(sectionPath) {
+        const item = document.querySelector('[data-nav-path="' + sectionPath + '"]');
+        if (!item) return;
+
+        const isExpanded = item.dataset.expanded === 'true';
+        const newState = !isExpanded;
+
+        // Accordion behavior: collapse siblings at same depth when expanding
+        if (newState) {
+          const depth = item.dataset.depth;
+          const parent = item.parentElement;
+          if (parent) {
+            // Find siblings at same depth and collapse them
+            const siblings = parent.querySelectorAll(':scope > [data-nav-path][data-depth="' + depth + '"]');
+            siblings.forEach(function(sibling) {
+              if (sibling !== item && sibling.dataset.expanded === 'true') {
+                sibling.dataset.expanded = 'false';
+                sibling.setAttribute('aria-expanded', 'false');
+              }
+            });
+          }
+        }
+
+        // Toggle this item
+        item.dataset.expanded = String(newState);
+        item.setAttribute('aria-expanded', String(newState));
+
+        // Save state to localStorage
+        saveExpandedSections();
+      };
+
+      function initNavState() {
+        const navItems = document.querySelectorAll('[data-nav-path]');
+        if (navItems.length === 0) return;
+
+        // 1. Start with all sections collapsed (already set in HTML)
+        // They're already data-expanded="false" from the template
+
+        // 2. Expand ancestors of current page (priority over saved state)
+        const currentItem = document.querySelector('[data-active="current"]');
+        if (currentItem) {
+          let parent = currentItem.closest('[data-nav-path]');
+          while (parent) {
+            parent.dataset.expanded = 'true';
+            parent.setAttribute('aria-expanded', 'true');
+            // Move to parent's parent
+            const grandparent = parent.parentElement;
+            if (grandparent) {
+              parent = grandparent.closest('[data-nav-path]');
+            } else {
+              parent = null;
+            }
+          }
+        }
+
+        // Also expand ancestors marked with data-active="ancestor"
+        document.querySelectorAll('[data-active="ancestor"]').forEach(function(ancestor) {
+          const navItem = ancestor.closest('[data-nav-path]');
+          if (navItem) {
+            navItem.dataset.expanded = 'true';
+            navItem.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // 3. Restore any additional saved expanded sections (that aren't in current path)
+        const savedExpanded = getExpandedSections();
+        savedExpanded.forEach(function(path) {
+          const item = document.querySelector('[data-nav-path="' + path + '"]');
+          if (item && item.dataset.expanded !== 'true') {
+            // Only restore if it doesn't conflict with accordion
+            // Check if a sibling at same depth is already expanded
+            const depth = item.dataset.depth;
+            const parent = item.parentElement;
+            if (parent) {
+              const expandedSibling = parent.querySelector(':scope > [data-nav-path][data-depth="' + depth + '"][data-expanded="true"]');
+              if (!expandedSibling) {
+                item.dataset.expanded = 'true';
+                item.setAttribute('aria-expanded', 'true');
+              }
+            }
+          }
+        });
+
+        // 4. Auto-scroll current page into view in sidebar
+        if (currentItem) {
+          setTimeout(function() {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            if (sidebarNav) {
+              // Get current item's link element
+              const currentLink = currentItem.querySelector('a[aria-current="page"]') || currentItem.querySelector('a');
+              if (currentLink) {
+                // Check if element is visible in sidebar
+                const navRect = sidebarNav.getBoundingClientRect();
+                const linkRect = currentLink.getBoundingClientRect();
+                const isVisible = linkRect.top >= navRect.top && linkRect.bottom <= navRect.bottom;
+
+                if (!isVisible) {
+                  currentLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }
+            }
+          }, 150);
+        }
+      }
+
+      // Initialize navigation state after DOM is ready
+      initNavState();
 
       // Load preferences
       const savedTheme = localStorage.getItem('uu-theme');

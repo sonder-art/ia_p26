@@ -106,8 +106,13 @@ module.exports = function(eleventyConfig) {
   });
 
   // Get navigation number - uses actual file prefix numbers
-  // Examples: a_stack -> A, 02_llms -> A.2, 01_intro -> 1
+  // Examples: a_stack -> A, 02_llms -> A.2, 01_intro -> 1, z_documentacion -> Z
   eleventyConfig.addFilter("getNavNumber", function(name, prefix, index) {
+    // Check if name starts with z_ prefix (documentation section)
+    if (name.match(/^z_/i)) {
+      return 'Z';
+    }
+
     // Check if name starts with letter prefix (a_, b_, c_, etc.) for appendices
     const letterMatch = name.match(/^([a-z])_/i);
     if (letterMatch) {
@@ -266,8 +271,9 @@ function parseAttributes(str) {
 
 /**
  * Get sort order from file path based on numeric/letter prefix
- * Handles: 00_index, 01_intro, a_stack, b_libros, etc.
+ * Handles: 00_index, 01_intro, a_stack, b_libros, z_documentacion, etc.
  * Letter prefixes (appendices) sort after all numeric content
+ * z_ prefix sorts at the very end (documentation section)
  */
 function getOrderFromPath(path) {
   const parts = path.split('/').filter(p => p && p !== '.' && p !== 'clase');
@@ -275,6 +281,12 @@ function getOrderFromPath(path) {
 
   parts.forEach((part, i) => {
     const weight = Math.pow(100, parts.length - i);
+
+    // Check for z_ prefix (documentation) - always last
+    if (part.match(/^z_/i)) {
+      order += 90 * weight;
+      return;
+    }
 
     // Check for letter prefix (a_, b_, c_) - appendices come after numbered content
     const letterMatch = part.match(/^([a-z])_/i);
