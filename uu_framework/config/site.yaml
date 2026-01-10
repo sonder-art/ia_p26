@@ -16,6 +16,7 @@ source:
   exclude:                         # Files/directories to exclude from rendering
     - "flow.sh"
     - "README_FLOW.md"
+    - "README.md"                  # Landing page (excluded from nav)
     - "b_libros"                   # PDFs not rendered as pages
 
 # Theme configuration

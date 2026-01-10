@@ -3,9 +3,17 @@ title: "Aleatorio"
 permalink: /aleatorio/
 ---
 
-<div class="max-w-2xl mx-auto">
+<div class="max-w-4xl mx-auto">
 
-# 🎲 Generador Aleatorio
+<div class="text-center mb-12">
+  <div class="inline-block text-accent text-lg font-bold mb-8 px-4 py-3 rounded-lg bg-bg-secondary/50">
+    GENERADOR ALEATORIO
+  </div>
+
+  <div class="mt-6">
+    <img src="{{ '/images/kaiji_random_number_generator.png' | url }}" alt="Kaiji Random Number Generator" class="mx-auto w-full max-w-2xl rounded-xl shadow-2xl border-2 border-accent/30">
+  </div>
+</div>
 
 <div class="random-generator mt-8 p-8 rounded-2xl bg-gradient-to-br from-accent/5 to-accent-secondary/5 border-2 border-accent/20">
 
@@ -32,11 +40,8 @@ permalink: /aleatorio/
   </div>
 
   <!-- Generate Button -->
-  <button
-    id="generate-btn"
-    class="w-full py-4 px-6 rounded-xl bg-accent hover:bg-accent/90 text-bg font-bold text-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-accent/50"
-  >
-    🎯 Generar Número
+  <button id="generate-btn" class="w-full py-4 px-6 rounded-xl bg-accent hover:bg-accent/90 text-bg font-bold text-lg transition-all transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-accent/50">
+    [&gt;] Generar Número
   </button>
 
   <!-- Result Display -->
@@ -245,18 +250,3 @@ permalink: /aleatorio/
 </script>
 
 </div>
-
-## Características
-
-- 🎯 **Rango personalizable**: Define tu propio rango mínimo y máximo
-- 🎨 **Animaciones suaves**: Efectos visuales al generar números
-- 📊 **Historial**: Mantiene un registro de los últimos 10 números generados
-- ⌨️ **Atajos de teclado**: Presiona Enter en los campos para generar
-
-## Casos de uso
-
-- Selección aleatoria de estudiantes
-- Sorteos y rifas
-- Simulaciones estadísticas
-- Juegos y dinámicas de clase
-- Generación de números para ejemplos

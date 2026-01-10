@@ -8,7 +8,8 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro                # Course content (read-only)
+      - ../../README.md:/app/README.md:ro        # Root README (source for landing page)
+      - ../../clase:/app/clase                   # Course content (writable for README.md)
       - ../../_site:/app/_site                   # Output directory
       - ../../uu_framework/config:/app/uu_framework/config:ro
       - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
@@ -26,7 +27,8 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro                # Course content (read-only)
+      - ../../README.md:/app/README.md:ro        # Root README (source for landing page)
+      - ../../clase:/app/clase                   # Course content (writable for README.md)
       - ../../_site:/app/_site
       - ../../uu_framework/config:/app/uu_framework/config:ro
       - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
@@ -55,7 +57,8 @@ services:
       context: ../..
       dockerfile: uu_framework/docker/Dockerfile
     volumes:
-      - ../../clase:/app/clase:ro                # Course content (read-only)
+      - ../../README.md:/app/README.md:ro        # Root README (source for landing page)
+      - ../../clase:/app/clase                   # Course content (writable for README.md)
       - ../../uu_framework/docs:/app/uu_framework/docs:ro  # Documentation source
       - ../../uu_framework/scripts:/app/uu_framework/scripts:ro  # Python scripts
       - ../../uu_framework/eleventy/_data:/app/uu_framework/eleventy/_data
