@@ -8,7 +8,7 @@ El objetivo de este proyecto es aplicar los conceptos de **Lógica Proposicional
 
 **Misión:** Diseñar la "inteligencia" de un sistema que, a partir de hechos y reglas, pueda inferir estados ocultos, detectar contradicciones o resolver conflictos logísticos.
 
-> **¡Ayuda disponible!** Tienes a tu disposición un [esqueleto de código](./code/logic_skeleton.py) para acelerar tu desarrollo.
+> **¡Ayuda disponible!** Tienes a tu disposición un [esqueleto de código](https://github.com/uumami/ia_p26/tree/main/clase/03_logica/a_proyecto/code) para acelerar tu desarrollo.
 
 :::
 
@@ -72,7 +72,7 @@ Para que tu proyecto sea válido, debe incluir:
 3.  **Motor de Inferencia/SAT:**
     *   Debe poder recibir una consulta (`ASK`).
     *   Debe poder determinar si una sentencia es **Entailed** ($\models$) o si un conjunto de sentencias es **Satisfacible**.
-4.  **Demo Funcional:** El sistema debe tener una interfaz o script que permita interactuar con él (puedes usar **Streamlit**, JavaScript/HTML, una CLI robusta en Python, etc.). Consulta el [código base](./code/logic_skeleton.py) para ver un ejemplo de integración con Streamlit.
+4.  **Demo Funcional:** El sistema debe tener una interfaz o script que permita interactuar con él (puedes usar **Streamlit**, JavaScript/HTML, una CLI robusta en Python, etc.). Consulta el [código base](https://github.com/uumami/ia_p26/tree/main/clase/03_logica/a_proyecto/code) para ver un ejemplo de integración con Streamlit.
 5.  **Casos de Prueba:** Al menos 3 escenarios diferentes (ej. "Caso donde todo es consistente", "Caso donde hay contradicción", "Caso donde la respuesta es incierta").
 
 ---
@@ -149,8 +149,8 @@ Explica brevemente qué herramienta o librería usaste (ej. `pysat`, `sympy`, o 
 ## Esqueleto de Código
 
 Para ayudarte a comenzar, hemos preparado un cascaron base en Python con **Streamlit**. Este código está separado en dos partes para mantener el orden:
-1.  **[`logic.py`](./code/logic.py):** El "cerebro" donde definirás tu Base de Conocimiento y algoritmos de inferencia.
-2.  **[`app.py`](./code/app.py):** La interfaz visual para interactuar con tu lógica.
+1.  **[`logic.py`](https://github.com/uumami/ia_p26/blob/main/clase/03_logica/a_proyecto/code/logic.py):** El "cerebro" donde definirás tu Base de Conocimiento y algoritmos de inferencia.
+2.  **[`app.py`](https://github.com/uumami/ia_p26/blob/main/clase/03_logica/a_proyecto/code/app.py):** La interfaz visual para interactuar con tu lógica.
 
 ### 💡 Libertad de Herramientas
 **El esqueleto es solo una ayuda, no una obligación.** Puedes desarrollar tu proyecto usando las herramientas que prefieras:
