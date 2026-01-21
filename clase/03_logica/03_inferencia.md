@@ -33,8 +33,8 @@ Decimos que $\alpha$ **implica lógicamente** a $\beta$ (escrito $\alpha \models
 Es decir, no existe ninguna situación posible donde $\alpha$ sea verdadera y $\beta$ sea falsa.
 
 **Intuición clave:** El conocimiento más específico implica el más general.
-- "Llueve Y hace frío" → "Llueve" ✓
-- "Llueve" → "Llueve Y hace frío" ✗ (no necesariamente)
+- "Llueve Y hace frío" implica "Llueve" ✓
+- "Llueve" NO implica "Llueve Y hace frío" ✗ (no necesariamente)
 
 ### Definición Formal usando Modelos
 
@@ -81,14 +81,72 @@ $$\alpha \models \beta \iff M(\alpha) \subseteq M(\beta)$$
 
 **Conclusión:** El entailment es **unidireccional** — no funciona al revés.
 
+### Entailment vs. Implicación Lógica
+
+**¡CUIDADO!** Hay una distinción crucial que a menudo confunde:
+
+| Aspecto | **Entailment** | **Implicación** |
+|---------|----------------|-----------------|
+| **Símbolo** | $\models$ | $\rightarrow$ |
+| **Naturaleza** | Relación META-lógica | Conectivo lógico |
+| **Nivel** | Afirmación SOBRE fórmulas | Una fórmula EN SÍ MISMA |
+| **¿Qué es?** | Relación entre fórmulas | Una fórmula |
+| **¿Tiene valor de verdad?** | NO (es cierto o no) | SÍ (T/F en cada modelo) |
+| **Se evalúa** | Sobre TODOS los modelos | En CADA modelo individualmente |
+
+#### Ejemplo Contrastante
+
+**Entailment:** $P \land Q \models P$
+
+- Esto es una **afirmación metalógica**
+- Pregunta: "¿En todos los modelos donde $P \land Q$ es TRUE, $P$ también es TRUE?"
+- Respuesta: Sí ✓ (es una afirmación cierta)
+- **No puedes** evaluar esto en un modelo específico — es una pregunta sobre TODOS los modelos
+
+**Implicación:** $(P \land Q) \rightarrow P$
+
+- Esto es una **fórmula proposicional**
+- Puedes evaluarla en cada modelo:
+
+| Modelo | $P$ | $Q$ | $P \land Q$ | $(P \land Q) \rightarrow P$ |
+|:------:|:---:|:---:|:-----------:|:---------------------------:|
+| m₁ | T | T | T | $T \rightarrow T = \mathbf{T}$ |
+| m₂ | T | F | F | $F \rightarrow T = \mathbf{T}$ |
+| m₃ | F | T | F | $F \rightarrow F = \mathbf{T}$ |
+| m₄ | F | F | F | $F \rightarrow F = \mathbf{T}$ |
+
+La fórmula $(P \land Q) \rightarrow P$ es TRUE en todos los modelos → es una **tautología**.
+
+#### El Teorema de Deducción: Conectando Ambos Conceptos
+
+Existe una conexión profunda entre entailment e implicación:
+
+$$\alpha \models \beta \quad\text{si y solo si}\quad \models (\alpha \rightarrow \beta)$$
+
+**En palabras:** "α implica lógicamente β" (metalenguaje) es cierto **si y solo si** "la fórmula α→β es una tautología" (lenguaje objeto).
+
+**Nota importante:** El símbolo $\models$ aparece dos veces pero con significados ligeramente diferentes:
+- $\alpha \models \beta$ — "α implica lógicamente β"
+- $\models (\alpha \rightarrow \beta)$ — "la fórmula α→β es válida/tautología" (es TRUE en todos los modelos)
+
+#### Analogía
+
+Piensa en la diferencia entre:
+1. **"La suma 2 + 2 = 4"** — una afirmación matemática (cierta o falsa)
+2. **"El número 4"** — un objeto matemático
+
+- **Entailment** ($\models$) es como (1): una afirmación sobre la relación entre fórmulas
+- **Implicación** ($\rightarrow$) es como (2): un objeto (fórmula) dentro del sistema lógico
+
 ### Entailment vs. Equivalencia Lógica
 
-Es crucial distinguir entre implicación unidireccional y equivalencia:
+También es crucial distinguir entre implicación unidireccional y equivalencia:
 
 | Concepto | Notación | Significado | Bidireccional |
 |----------|----------|-------------|---------------|
 | **Entailment** | $\alpha \models \beta$ | Si α es TRUE, entonces β debe ser TRUE | ❌ NO |
-| **Equivalencia** | $\alpha \equiv \beta$ o $\alpha \leftrightarrow \beta$ | α y β son TRUE en exactamente los mismos modelos | ✅ SÍ |
+| **Equivalencia** | $\alpha \equiv \beta$ | α y β son TRUE en exactamente los mismos modelos | ✅ SÍ |
+| **Bicondicional** | $\alpha \leftrightarrow \beta$ | Fórmula que es TRUE cuando α y β tienen el mismo valor | (es una fórmula) |
 
 **Definición formal de equivalencia:**
 $$\alpha \equiv \beta \quad\text{si y solo si}\quad M(\alpha) = M(\beta)$$
@@ -96,16 +154,25 @@ $$\alpha \equiv \beta \quad\text{si y solo si}\quad M(\alpha) = M(\beta)$$
 Equivalentemente:
 $$\alpha \equiv \beta \quad\text{si y solo si}\quad (\alpha \models \beta) \text{ Y } (\beta \models \alpha)$$
 
+**Teorema de equivalencia:**
+$$\alpha \equiv \beta \quad\text{si y solo si}\quad \models (\alpha \leftrightarrow \beta)$$
+
+Es decir, dos fórmulas son equivalentes si y solo si su bicondicional es una tautología.
+
 **Ejemplos:**
 
 - $P \land Q \equiv Q \land P$ (conmutatividad — son equivalentes)
   - $M(P \land Q) = M(Q \land P) = \{m_1\}$
+  - La fórmula $(P \land Q) \leftrightarrow (Q \land P)$ es una tautología
   
 - $P \lor Q \equiv \neg(\neg P \land \neg Q)$ (ley de De Morgan — equivalentes)
+  - La fórmula $(P \lor Q) \leftrightarrow \neg(\neg P \land \neg Q)$ es una tautología
   
 - $P \land Q \not\equiv P$ (NO son equivalentes)
   - $M(P \land Q) = \{m_1\} \neq \{m_1, m_2\} = M(P)$
-  - Pero sí hay entailment: $P \land Q \models P$ (unidireccional)
+  - Pero sí hay entailment unidireccional: $P \land Q \models P$
+  - La fórmula $(P \land Q) \rightarrow P$ es una tautología
+  - Pero $(P \land Q) \leftrightarrow P$ NO es una tautología (es falsa en m₂)
 
 ---
 
