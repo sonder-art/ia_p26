@@ -1,4 +1,4 @@
-:::homework{id="A.6.4" title="Script de python 101" due="2026-01-28" points="10"}
+:::homework{id="A.6.4" title="Script de python 101" due="2026-01-28" points="5"}
 
 Crea un script Python con clase/función/if-else, y envía todo mediante Pull Request.
 
