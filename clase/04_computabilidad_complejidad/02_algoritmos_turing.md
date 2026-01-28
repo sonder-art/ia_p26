@@ -94,109 +94,213 @@ Se lee: "Estando en estado $q$ y leyendo símbolo $a$, escribo $b$, me muevo en 
 
 ---
 
-## Ejemplo 1: Reconocer el Lenguaje $\{0^n1^n \mid n \geq 0\}$
+## Ejemplo Completo: Reconocer Cadenas de Solo Unos
 
-**Problema:** Aceptar cadenas como "01", "0011", "000111" y rechazar "00" "011", "01010".
+Vamos a construir paso a paso una MT que reconozca el lenguaje:
 
-**Estrategia:**
-1. Marcar un 0, marcar un 1
-2. Repetir hasta que no queden símbolos sin marcar
-3. Si todo coincide → aceptar; si no → rechazar
+$$L = \{1^n \mid n \geq 1\} = \{1, 11, 111, 1111, ...\}$$
 
-**Descripción informal:**
+Es decir: acepta cadenas que contengan **solo unos** (al menos uno), rechaza cualquier otra cosa.
 
-```
-Estado q₀ (inicio):
-  - Si veo 0 → escribo X, muevo R, voy a q₁
-  - Si veo X → muevo R, quedo en q₀ (saltar Xs)
-  - Si veo □ → acepto (cadena vacía)
-  
-Estado q₁ (buscar el 1 correspondiente):
-  - Si veo 0 o X → muevo R, quedo en q₁
-  - Si veo 1 → escribo Y, muevo L, voy a q₂
-  - Si veo □ → rechazo (faltan 1s)
-  
-Estado q₂ (regresar al inicio):
-  - Si veo 0, X, Y → muevo L, quedo en q₂
-  - Si veo □ → muevo R, voy a q₀
-  
-Estado q₃ (verificar que solo quedan Ys):
-  - Si veo Y → muevo R, quedo en q₃
-  - Si veo □ → acepto
-  - Cualquier otra cosa → rechazo
-```
+### Paso 1: Definición Formal de la MT
 
-**Ejecución en "0011":**
+$$M_{unos} = (Q, \Sigma, \Gamma, \delta, q_0, q_{accept}, q_{reject})$$
 
-```
-Paso 0: q₀  [0]011      (lee 0)
-Paso 1: Xq₁  0[1]1      (marcó X, busca 1)
-Paso 2: Xq₁  01[1]      (sigue buscando)
-Paso 3: X0q₂  Y[1]      (marcó Y, regresa)
-Paso 4: Xq₂ [0]Y1       (regresando)
-Paso 5: q₂ [X]0Y1       (regresando)
-Paso 6: □q₀ X[0]Y1      (de vuelta al inicio)
-Paso 7: □Xq₁ [0]Y1      (salta X, busca siguiente 0)
-Paso 8: □XXq₁ Y[1]      (encontró Y, sigue)
-Paso 9: □XXq₁ YY[□]     (encontró 1, lo marca)
-... (similar, marca el último 1)
-... llegamos a: □XXYY□
-Paso N: acepta ✓
-```
+| Componente | Valor | Explicación |
+|------------|-------|-------------|
+| $Q$ | $\{q_0, q_{accept}, q_{reject}\}$ | Solo 3 estados: inicial, aceptar, rechazar |
+| $\Sigma$ | $\{0, 1\}$ | Alfabeto de entrada (dígitos binarios) |
+| $\Gamma$ | $\{0, 1, \sqcup\}$ | Alfabeto de cinta = entrada + blanco |
+| $q_0$ | $q_0$ | Estado inicial |
+| $q_{accept}$ | $q_{accept}$ | Estado de aceptación |
+| $q_{reject}$ | $q_{reject}$ | Estado de rechazo |
 
-**Conclusión:** La cadena "0011" es aceptada.
+### Paso 2: Función de Transición δ
 
----
+La función de transición define qué hacer en cada situación:
 
-## Ejemplo 2: Sumar 1 a un Número Binario
+| Estado actual | Símbolo leído | → | Nuevo estado | Escribir | Mover |
+|:-------------:|:-------------:|:-:|:------------:|:--------:|:-----:|
+| $q_0$ | 1 | → | $q_0$ | 1 | R |
+| $q_0$ | 0 | → | $q_{reject}$ | 0 | R |
+| $q_0$ | $\sqcup$ | → | $q_{accept}$ | $\sqcup$ | R |
 
-**Problema:** Entrada "1011" (11 en decimal) → Salida "1100" (12 en decimal)
+**En palabras:**
+- Si estoy en $q_0$ y veo **1**: lo dejo igual, avanzo a la derecha, sigo en $q_0$
+- Si estoy en $q_0$ y veo **0**: encontré algo que no es 1, **rechazo**
+- Si estoy en $q_0$ y veo **blanco**: llegué al final sin ver ningún 0, **acepto**
 
-**Estrategia:** Ir al final, sumar 1, propagar el acarreo.
-
-**Descripción informal:**
+### Paso 3: Diagrama de Estados
 
 ```
-q₀: Mover a la derecha hasta encontrar el blanco
-q₁: Empezar a sumar desde el dígito menos significativo
-    - Si veo 1 → escribo 0, muevo L (acarreo)
-    - Si veo 0 → escribo 1, acepto (sin acarreo)
-    - Si veo □ → escribo 1, acepto (acarreo al inicio)
+                    1 → 1, R
+                   ┌────────┐
+                   │        │
+                   ▼        │
+    ┌─────┐      ┌────┐     │
+    │START│ ──▶  │ q₀ │ ────┘
+    └─────┘      └────┘
+                   │
+         ┌─────────┴─────────┐
+         │                   │
+      0 → 0, R            □ → □, R
+         │                   │
+         ▼                   ▼
+    ┌─────────┐       ┌──────────┐
+    │ REJECT  │       │  ACCEPT  │
+    └─────────┘       └──────────┘
 ```
 
-**Ejecución en "1011":**
+### Paso 4: El Ciclo de Ejecución
+
+En cada paso, la MT hace exactamente esto:
 
 ```
-Paso 0: q₀ [1]011       (moverse al final)
-Paso 1: q₀ 1[0]11
-Paso 2: q₀ 10[1]1
-Paso 3: q₀ 101[1]
-Paso 4: q₀ 1011[□]      (fin de cadena)
-Paso 5: q₁ 101[1]       (sumar 1)
-Paso 6: q₁ 10[1]0       (acarreo: 1+1=10)
-Paso 7: q₁ 1[0]00       (acarreo: 1+1=10)
-Paso 8: q₁ [1]100       (sin acarreo: 0+1=1)
-Resultado: 1100 ✓
+┌────────────────────────────────────────────────────┐
+│  1. ¿Estoy en q_accept o q_reject?                 │
+│     → SÍ: PARAR (la máquina termina)               │
+│     → NO: continuar al paso 2                      │
+│                                                    │
+│  2. Leer el símbolo bajo el cabezal                │
+│                                                    │
+│  3. Buscar en la tabla δ la entrada:               │
+│        δ(estado_actual, símbolo_leído)             │
+│                                                    │
+│  4. Ejecutar la transición encontrada:             │
+│     a) Escribir el nuevo símbolo en la cinta       │
+│     b) Mover el cabezal (L o R)                    │
+│     c) Cambiar al nuevo estado                     │
+│                                                    │
+│  5. Volver al paso 1                               │
+└────────────────────────────────────────────────────┘
 ```
 
----
+### Paso 5: Ejecución que ACEPTA (entrada "111")
 
-## Ejemplo 3: Copiar una Cadena
+Notación: `estado | cinta con [cabezal]`
 
-**Problema:** Entrada "ab" → Salida "ab#ab" (copiar la cadena después de un separador)
+```
+Configuración inicial:
+  - Cinta: 1 1 1 □ □ □ ...
+  - Cabezal: posición 0 (primer símbolo)
+  - Estado: q₀
 
-**Estrategia:** 
-1. Marcar un símbolo del input
-2. Moverlo al final
-3. Regresar
-4. Repetir
+Paso 0: q₀ | [1] 1  1  □
+        Busco δ(q₀, 1) = (q₀, 1, R)
+        → Escribo 1 (sin cambio), muevo R, voy a q₀
 
-Esta MT necesitaría varios estados para:
-- Recordar qué símbolo estamos copiando
-- Navegar entre el origen y el destino
-- Marcar qué ya copiamos
+Paso 1: q₀ |  1 [1] 1  □
+        Busco δ(q₀, 1) = (q₀, 1, R)
+        → Escribo 1, muevo R, voy a q₀
 
-(Dejamos los detalles como ejercicio — ¡el patrón es similar!)
+Paso 2: q₀ |  1  1 [1] □
+        Busco δ(q₀, 1) = (q₀, 1, R)
+        → Escribo 1, muevo R, voy a q₀
+
+Paso 3: q₀ |  1  1  1 [□]
+        Busco δ(q₀, □) = (q_accept, □, R)
+        → Escribo □, muevo R, voy a q_accept
+
+Paso 4: q_accept | ...
+        ¡PARAR! Estado de aceptación alcanzado.
+
+═══════════════════════════════════════════════════
+RESULTADO: ACEPTA ✓
+La cadena "111" pertenece al lenguaje L.
+═══════════════════════════════════════════════════
+```
+
+### Paso 6: Ejecución que RECHAZA (entrada "101")
+
+```
+Configuración inicial:
+  - Cinta: 1 0 1 □ □ □ ...
+  - Cabezal: posición 0
+  - Estado: q₀
+
+Paso 0: q₀ | [1] 0  1  □
+        Busco δ(q₀, 1) = (q₀, 1, R)
+        → Escribo 1, muevo R, voy a q₀
+
+Paso 1: q₀ |  1 [0] 1  □
+        Busco δ(q₀, 0) = (q_reject, 0, R)
+        → Escribo 0, muevo R, voy a q_reject
+
+Paso 2: q_reject | ...
+        ¡PARAR! Estado de rechazo alcanzado.
+
+═══════════════════════════════════════════════════
+RESULTADO: RECHAZA ✗
+La cadena "101" NO pertenece al lenguaje L.
+═══════════════════════════════════════════════════
+```
+
+### Paso 7: Código Equivalente en Python
+
+Esta MT es equivalente a este programa:
+
+```python
+def MT_unos(entrada):
+    """
+    Máquina de Turing que acepta cadenas de solo unos.
+    Retorna True (acepta) o False (rechaza).
+    """
+    # Preparar la cinta: entrada + blancos infinitos
+    cinta = list(entrada) + ['□'] * 100  # simulamos infinito
+    cabezal = 0
+    estado = 'q0'
+    
+    while True:
+        # Paso 1: ¿Estado de parada?
+        if estado == 'q_accept':
+            return True   # ACEPTA
+        if estado == 'q_reject':
+            return False  # RECHAZA
+        
+        # Paso 2: Leer símbolo
+        simbolo = cinta[cabezal]
+        
+        # Paso 3 y 4: Aplicar transición según δ
+        if estado == 'q0':
+            if simbolo == '1':
+                # δ(q0, 1) = (q0, 1, R)
+                cinta[cabezal] = '1'  # escribir
+                cabezal += 1          # mover R
+                estado = 'q0'         # nuevo estado
+            elif simbolo == '0':
+                # δ(q0, 0) = (q_reject, 0, R)
+                cinta[cabezal] = '0'
+                cabezal += 1
+                estado = 'q_reject'
+            elif simbolo == '□':
+                # δ(q0, □) = (q_accept, □, R)
+                cinta[cabezal] = '□'
+                cabezal += 1
+                estado = 'q_accept'
+
+# Pruebas
+print(MT_unos("111"))   # True  (acepta)
+print(MT_unos("1"))     # True  (acepta)
+print(MT_unos("101"))   # False (rechaza)
+print(MT_unos("0"))     # False (rechaza)
+print(MT_unos("110"))   # False (rechaza)
+```
+
+### Paso 8: ¿Por Qué Este Ejemplo es Importante?
+
+Este ejemplo simple ilustra **todos** los conceptos clave:
+
+| Concepto | En este ejemplo |
+|----------|-----------------|
+| **Estados** | Solo 3 estados bastan para decidir |
+| **Transiciones** | Tabla δ con 3 reglas |
+| **Lectura** | Lee un símbolo a la vez |
+| **Movimiento** | Siempre mueve R (muy simple) |
+| **Aceptación** | Llegar a $q_{accept}$ |
+| **Rechazo** | Llegar a $q_{reject}$ |
+| **Determinismo** | Cada (estado, símbolo) tiene exactamente UNA transición |
+
+**Observación:** Esta MT siempre termina — nunca entra en loop infinito. Esto es porque siempre avanza a la derecha y eventualmente encuentra el blanco.
 
 ---
 

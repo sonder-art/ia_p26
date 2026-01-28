@@ -2,7 +2,7 @@
 title: "Lógica: Razonamiento con Certeza"
 ---
 
-:::project{id="p3-logica" title="Sistemas de Razonamiento Lógico" due="2026-02-09" team_size="1-2" points="10"}
+:::project{id="p3-logica" title="Sistemas de Razonamiento Lógico" due="2026-06-09" team_size="1-2" points="10"}
 
 **Misión:** Diseñar la "inteligencia" de un sistema que, a partir de hechos y reglas, pueda inferir estados ocultos, detectar contradicciones o resolver conflictos logísticos.
 
@@ -17,9 +17,9 @@ Consulta las [instrucciones detalladas y el esqueleto de código](./a_proyecto/0
 Habra examen parcial sobre es modulo y sobre el proyecto que van a realizar, asi que haganlo a conciencia y con detenimiento entendiendo los detalles y diseno del proyecto.
 :::  
 
-:::exam{id="parcial-02" title="Parcial 2: Lógica" date="2026-02-09" location="Aula 201" duration="20 minutos"}
+:::exam{id="parcial-02" title="Parcial 2: Computabilidad y Complejidad" date="2026-02-09" location="Aula 201" duration="20 minutos"}
 
-Estudiará la parte de lógica proposicional, satisfacibilidad y su proyecto. Se preguntaran sobre los conceptos y temas de ese modulo y sobre el proyecto que realizaron. Por lo mismo tienen que realizar el proyecto a conciencia y entenderlo.
+Se preguntara acerta de computabilidad y complejidad, asi que estudien bien los temas de ese modulo.
 :::
 
 # Lógica: Razonamiento con Certeza
