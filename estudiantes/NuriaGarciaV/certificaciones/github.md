@@ -7,6 +7,8 @@
 
 ## Evidencia
 - Certificado:
-<img width="1292" height="742" alt="Screenshot 2025-11-16 at 19 55 42" src="https://github.com/user-attachments/assets/8ad7c3a5-f42c-4a00-8796-687421bab225" />
+<img width="1439" height="794" alt="Screenshot 2026-01-27 at 21 19 34" src="https://github.com/user-attachments/assets/5794e3b5-593e-4c9b-b500-5e4e1994e7c8" />
+
+
 
 
