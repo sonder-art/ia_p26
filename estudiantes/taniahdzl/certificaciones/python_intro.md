@@ -1,0 +1,35 @@
+---
+title: "Plantilla: Evidencia Python Intro"
+---
+
+# Plantilla de Entrega
+
+Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certificaciones/` para entregar la evidencia del curso.
+
+**Curso:** [Introduction to Python for Data Science](https://app.datacamp.com/learn/courses/intro-to-python-for-data-science)
+
+**Requisitos de la evidencia:**
+1. El nombre del curso
+2. El progreso al 100%
+3. Tu usuario logueado
+
+---
+
+# Evidencia: Introduction to Python for Data Science
+
+Nombre del Estudiante: [Tania Hernandez Lira]
+Fecha: [28-Jan-2026]
+
+## Prueba de Finalización
+
+Por favor, inserta aquí abajo una captura de pantalla clara donde se vea:
+1.  El nombre del curso.
+2.  El progreso al 100%.
+3.  Tu usuario logueado.
+
+```markdown
+![Certificado de Tania](evidencia_python.png)
+```
+
+o enlace al certificado público:
+[Ver Certificado de Tania](https://www.datacamp.com/completed/statement-of-accomplishment/course/e00bd1085d3555ae75ee9631df896ef58c229bf8)
