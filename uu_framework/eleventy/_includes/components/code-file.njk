@@ -1,0 +1,15 @@
+{# Code file display component #}
+
+{% if file %}
+<div class="card my-4">
+  <div class="flex items-center justify-between mb-2">
+    <span class="font-mono text-sm text-accent">{{ file.name }}</span>
+    <a href="{{ file.url | url }}" class="text-xs text-text-muted hover:text-accent">
+      Ver archivo
+    </a>
+  </div>
+  {% if file.preview %}
+  <pre class="text-sm overflow-x-auto"><code>{{ file.preview }}</code></pre>
+  {% endif %}
+</div>
+{% endif %}

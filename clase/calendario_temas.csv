@@ -1,0 +1,37 @@
+Clase,Fecha,Tema
+1,12/01/2026,Introducción e Historia de la IA: Definición de inteligencia y paradigmas
+2,14/01/2026,Agents y Environments: Percibir-Decidir-Actuar y framework PEAS
+3,19/01/2026,Agents y Environments: Percibir-Decidir-Actuar y framework PEAS (continuación)
+4,21/01/2026,Lógica: Razonamiento con certeza y lógica proposicional
+5,26/01/2026,Computación y sus Límites: Turing machines y P vs NP
+6,28/01/2026,Probabilidad: Razonamiento bajo incertidumbre y Bayes
+asueto,02/02/2026,asueto
+7,04/02/2026,Fat Tails: Cuando fallan LLN y CLT
+8,09/02/2026,Information Theory I: Entropy y conditional entropy
+9,11/02/2026,Information Theory II: KL divergence y cross-entropy
+10,16/02/2026,Optimización: Gradient descent y convexity
+11,18/02/2026,Taxonomía de Predicción: Marco de 5 dimensiones
+12,23/02/2026,Decision Theory: Expected utility y value of information
+13,25/02/2026,Causality: Structural causal models y do-calculus
+14,02/03/2026,Bayesian Inference: Bayesian networks y d-separation
+15,04/03/2026,Monte Carlo Methods: Sampling e importance sampling
+16,09/03/2026,Informed Search: Heuristics y algoritmo A*
+17,11/03/2026,Adversarial Search: Minimax y alpha-beta pruning
+asueto,16/03/2026,asueto
+18,18/03/2026,Simulation-Based Planning: Monte Carlo Tree Search
+19,23/03/2026,Classical Planning: STRIPS y forward planning
+20,25/03/2026,Constraints y Local Search: CSPs y simulated annealing
+asueto,30/03/2026,asueto
+asueto,01/04/2026,asueto
+21,06/04/2026,Markov Models y HMMs: Forward y Viterbi algorithms
+22,08/04/2026,MDPs I: Bellman equation y policies
+23,13/04/2026,MDPs II: Value iteration y policy iteration
+24,15/04/2026,Game Theory I: Nash equilibrium y dominant strategies
+25,20/04/2026,Game Theory II: Repeated games y folk theorem
+26,22/04/2026,Learning Theory: Bias-variance tradeoff y regularization
+27,27/04/2026,Neural Networks: Backpropagation y multilayer networks
+28,29/04/2026,RL I: Exploration vs exploitation y bandits
+29,04/05/2026,RL II: Temporal difference y Q-learning
+30,06/05/2026,RL III: Function approximation y DQN
+31,11/05/2026,Síntesis: Integración del curso y selección de métodos
+32,13/05/2026,

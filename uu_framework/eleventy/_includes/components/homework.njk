@@ -1,0 +1,26 @@
+{# Homework component for manual inclusion in templates #}
+{# Usage: {% include "components/homework.njk" %} with task variable #}
+
+{% if task %}
+<div class="component component--homework" data-id="{{ task.id }}" data-due="{{ task.due }}">
+  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+    <h3 class="font-bold text-lg text-homework">{{ task.title }}</h3>
+    {% if task.due %}
+    <span class="text-sm {% if task.overdue %}text-exam{% else %}text-text-muted{% endif %}">
+      Fecha limite: {{ task.due | formatDate }}
+    </span>
+    {% endif %}
+  </div>
+  {% if task.points %}
+  <p class="text-sm text-accent mb-2">{{ task.points }} puntos</p>
+  {% endif %}
+  {% if task.summary %}
+  <p class="text-text-muted">{{ task.summary }}</p>
+  {% endif %}
+  {% if task.url %}
+  <a href="{{ task.url | url }}" class="inline-block mt-3 text-accent hover:text-accent-hover">
+    Ver instrucciones completas &rarr;
+  </a>
+  {% endif %}
+</div>
+{% endif %}

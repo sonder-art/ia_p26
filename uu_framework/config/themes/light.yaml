@@ -1,0 +1,54 @@
+# Light Theme
+# Clean light theme for readability
+
+name: "Light"
+type: "light"
+
+colors:
+  # Base colors
+  background: "#ffffff"            # White background
+  background_secondary: "#f8f9fa"  # Light gray for cards/sections
+  background_tertiary: "#e9ecef"   # Slightly darker for hover states
+
+  # Text colors
+  text: "#212529"                  # Primary text (near black)
+  text_muted: "#6c757d"            # Secondary/muted text
+  text_inverse: "#ffffff"          # Text on dark backgrounds
+
+  # Accent colors
+  accent: "#6f42c1"                # Purple accent (softer than Eva theme)
+  accent_hover: "#5a32a3"          # Darker purple for hover
+  accent_secondary: "#20c997"      # Teal accent
+
+  # UI colors
+  border: "#dee2e6"                # Border color
+  border_focus: "#6f42c1"          # Focus border
+
+  # Code colors
+  code_background: "#f8f9fa"       # Light gray for code blocks
+  code_text: "#212529"             # Code text color
+
+  # Link colors
+  link: "#6f42c1"                  # Link color
+  link_hover: "#5a32a3"            # Link hover color
+  link_visited: "#6c757d"          # Visited link color
+
+  # Component-specific colors
+  homework: "#fd7e14"              # Orange for homework blocks
+  exercise: "#0dcaf0"              # Cyan for exercise blocks
+  prompt: "#6f42c1"                # Purple for LLM prompt blocks
+  example: "#adb5bd"               # Gray for example blocks
+  exam: "#dc3545"                  # Red for exam blocks
+  project: "#ffc107"               # Yellow for project blocks
+
+  # Status colors
+  success: "#198754"               # Success/completed
+  warning: "#ffc107"               # Warning
+  error: "#dc3545"                 # Error
+  info: "#0dcaf0"                  # Information
+
+# Typography
+typography:
+  font_family_base: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+  font_family_mono: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace"
+  font_family_dyslexic: "'OpenDyslexic', sans-serif"

@@ -1,0 +1,148 @@
+/**
+ * Light Theme
+ * Clean light theme for readability
+ */
+
+.theme-light {
+  /* Base colors */
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f8f9fa;
+  --color-bg-tertiary: #e9ecef;
+
+  /* Text colors */
+  --color-text: #212529;
+  --color-text-muted: #6c757d;
+  --color-text-inverse: #ffffff;
+
+  /* Accent colors */
+  --color-accent: #6f42c1;
+  --color-accent-hover: #5a32a3;
+  --color-accent-secondary: #20c997;
+
+  /* UI colors */
+  --color-border: #dee2e6;
+  --color-border-focus: #6f42c1;
+
+  /* Code colors */
+  --color-code-bg: #f8f9fa;
+  --color-code-text: #212529;
+
+  /* Link colors */
+  --color-link: #6f42c1;
+  --color-link-hover: #5a32a3;
+  --color-link-visited: #6c757d;
+
+  /* Component colors */
+  --color-homework: #fd7e14;
+  --color-exercise: #0dcaf0;
+  --color-prompt: #6f42c1;
+  --color-example: #adb5bd;
+  --color-exam: #dc3545;
+  --color-project: #ffc107;
+
+  /* Calendar colors */
+  --color-calendar-class: #6f42c1;
+  --color-calendar-holiday: #dc3545;
+  --color-calendar-shadow: #000000;
+
+  /* Status colors */
+  --color-success: #198754;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-info: #0dcaf0;
+
+  /* Typography */
+  --font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+/* Syntax highlighting for light theme */
+.theme-light pre code {
+  color: #212529;
+}
+
+.theme-light .token.comment,
+.theme-light .token.prolog,
+.theme-light .token.doctype,
+.theme-light .token.cdata {
+  color: #6c757d;
+}
+
+.theme-light .token.punctuation {
+  color: #495057;
+}
+
+.theme-light .token.property,
+.theme-light .token.tag,
+.theme-light .token.boolean,
+.theme-light .token.number,
+.theme-light .token.constant,
+.theme-light .token.symbol,
+.theme-light .token.deleted {
+  color: #dc3545;
+}
+
+.theme-light .token.selector,
+.theme-light .token.attr-name,
+.theme-light .token.string,
+.theme-light .token.char,
+.theme-light .token.builtin,
+.theme-light .token.inserted {
+  color: #198754;
+}
+
+.theme-light .token.operator,
+.theme-light .token.entity,
+.theme-light .token.url,
+.theme-light .language-css .token.string,
+.theme-light .style .token.string {
+  color: #fd7e14;
+}
+
+.theme-light .token.atrule,
+.theme-light .token.attr-value,
+.theme-light .token.keyword {
+  color: #6f42c1;
+}
+
+.theme-light .token.function,
+.theme-light .token.class-name {
+  color: #0d6efd;
+}
+
+.theme-light .token.regex,
+.theme-light .token.important,
+.theme-light .token.variable {
+  color: #fd7e14;
+}
+
+/* Scrollbar styling */
+.theme-light ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.theme-light ::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.theme-light ::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+
+.theme-light ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* Selection */
+.theme-light ::selection {
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+}
+
+/* Focus styles */
+.theme-light *:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}

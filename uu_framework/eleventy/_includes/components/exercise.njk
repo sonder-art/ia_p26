@@ -1,0 +1,14 @@
+{# Exercise component for manual inclusion in templates #}
+
+{% if exercise %}
+<div class="component component--exercise">
+  <h3 class="font-bold text-lg text-exercise mb-2">{{ exercise.title }}</h3>
+  {% if exercise.difficulty %}
+  <p class="text-sm text-text-muted mb-2">
+    Dificultad:
+    {% for i in range(exercise.difficulty) %}*{% endfor %}
+  </p>
+  {% endif %}
+  {{ exercise.content | safe }}
+</div>
+{% endif %}

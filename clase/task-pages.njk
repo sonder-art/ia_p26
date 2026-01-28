@@ -1,0 +1,145 @@
+---
+pagination:
+  data: taskPages
+  size: 1
+  alias: taskPage
+permalink: "/{{ taskPage.slug }}/"
+layout: layouts/base.njk
+eleventyComputed:
+  title: "{{ taskPage.title }}"
+---
+
+<div class="max-w-4xl">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-text">{{ taskPage.title }}</h1>
+      <p class="text-text-muted text-sm">{{ taskPage.description }}</p>
+    </div>
+
+    {# Sorting controls #}
+    <div class="flex items-center gap-2 text-sm">
+      <span class="text-text-muted">Ordenar:</span>
+      <button id="sort-section" class="sort-btn px-3 py-1 rounded border border-border bg-bg-tertiary text-text hover:border-accent transition-colors" data-sort="section">
+        Sección
+      </button>
+      <button id="sort-date" class="sort-btn px-3 py-1 rounded border border-border text-text-muted hover:border-accent hover:text-text transition-colors" data-sort="date">
+        Fecha
+      </button>
+    </div>
+  </div>
+
+  {# Get the right task list based on type #}
+  {% set taskList = [] %}
+  {% if taskPage.taskType == "homework" %}
+    {% set taskList = tasks.homework %}
+  {% elif taskPage.taskType == "exams" %}
+    {% set taskList = tasks.exams %}
+  {% elif taskPage.taskType == "projects" %}
+    {% set taskList = tasks.projects %}
+  {% endif %}
+
+  {% if taskList and taskList.length > 0 %}
+  <div id="task-list" class="space-y-4">
+    {% for task in taskList %}
+    <article class="task-item p-4 rounded-lg border-l-4 bg-bg-secondary
+      {% if task.type == 'homework' %}border-homework{% endif %}
+      {% if task.type == 'exam' %}border-exam{% endif %}
+      {% if task.type == 'project' %}border-project{% endif %}
+    " data-file="{{ task.file }}" data-due="{{ task.due or task.date or '9999-99-99' }}">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <div class="flex-1">
+          <h3 class="font-bold text-lg flex items-center gap-2">
+            <span class="inline-block px-2 py-0.5 text-sm font-mono bg-bg-tertiary border border-border rounded text-accent">{{ task.id }}</span>
+            <a href="{{ task.url | url }}" class="text-text hover:text-accent">{{ task.title }}</a>
+          </h3>
+          {% if task.summary %}
+          <p class="mt-1 text-text-muted text-sm">{{ task.summary }}</p>
+          {% endif %}
+        </div>
+        <div class="flex flex-col items-start sm:items-end text-sm flex-shrink-0">
+          {# Date - handle both homework (due) and exams (date) #}
+          <span class="{% if task.overdue %}text-exam{% else %}text-text-muted{% endif %}">
+            Fecha: {% if task.due %}{{ task.due | formatDate }}{% elif task.date %}{{ task.date | formatDate }}{% else %}<span class="opacity-50">N/A</span>{% endif %}
+          </span>
+          {# Points #}
+          <span class="text-text-muted">
+            Puntos: {% if task.points %}{{ task.points }}{% else %}<span class="opacity-50">N/A</span>{% endif %}
+          </span>
+          {# Duration - only for exams #}
+          {% if task.type == 'exam' and task.duration %}
+          <span class="text-text-muted">
+            Duración: {{ task.duration }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+
+  <script>
+  (function() {
+    const list = document.getElementById('task-list');
+    const buttons = document.querySelectorAll('.sort-btn');
+
+    function sortTasks(sortBy) {
+      const items = Array.from(list.querySelectorAll('.task-item'));
+
+      items.sort((a, b) => {
+        if (sortBy === 'date') {
+          const dateA = a.dataset.due;
+          const dateB = b.dataset.due;
+          return dateA.localeCompare(dateB);
+        } else {
+          // Sort by file path (section)
+          const fileA = a.dataset.file;
+          const fileB = b.dataset.file;
+          return fileA.localeCompare(fileB);
+        }
+      });
+
+      // Re-append in new order
+      items.forEach(item => list.appendChild(item));
+
+      // Update button styles
+      buttons.forEach(btn => {
+        if (btn.dataset.sort === sortBy) {
+          btn.classList.add('bg-bg-tertiary');
+          btn.classList.remove('text-text-muted');
+          btn.classList.add('text-text');
+        } else {
+          btn.classList.remove('bg-bg-tertiary');
+          btn.classList.add('text-text-muted');
+          btn.classList.remove('text-text');
+        }
+      });
+
+      // Save preference
+      localStorage.setItem('uu-task-sort', sortBy);
+    }
+
+    // Add click handlers
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => sortTasks(btn.dataset.sort));
+    });
+
+    // Load saved preference
+    const saved = localStorage.getItem('uu-task-sort');
+    if (saved) {
+      sortTasks(saved);
+    }
+  })();
+  </script>
+
+  {% else %}
+  <div class="bg-bg-secondary border border-border rounded-lg p-8 text-center">
+    <div class="text-4xl mb-4 opacity-50">
+      {% if taskPage.taskType == "homework" %}📝{% endif %}
+      {% if taskPage.taskType == "exams" %}📋{% endif %}
+      {% if taskPage.taskType == "projects" %}🚀{% endif %}
+    </div>
+    <h2 class="text-xl font-semibold text-text mb-2">{{ taskPage.emptyTitle }}</h2>
+    <p class="text-text-muted max-w-md mx-auto">{{ taskPage.emptyMessage }}</p>
+  </div>
+  {% endif %}
+</div>

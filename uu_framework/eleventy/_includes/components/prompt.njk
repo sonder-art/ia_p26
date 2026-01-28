@@ -1,0 +1,28 @@
+{# Prompt component for LLM prompts with copy functionality #}
+
+{% if prompt %}
+<div class="component component--prompt relative">
+  <div class="flex items-center justify-between mb-2">
+    <h3 class="font-bold text-lg text-prompt">{{ prompt.title }}</h3>
+    {% if prompt.for %}
+    <span class="text-xs text-text-muted uppercase">{{ prompt.for }}</span>
+    {% endif %}
+  </div>
+  <div class="prompt-content font-mono text-sm whitespace-pre-wrap">{{ prompt.content | safe }}</div>
+  <button class="copy-btn absolute top-2 right-2 p-2 text-text-muted hover:text-accent transition-colors"
+          onclick="copyPrompt(this)"
+          aria-label="Copiar al portapapeles">
+    [Copiar]
+  </button>
+</div>
+
+<script>
+function copyPrompt(btn) {
+  const content = btn.parentElement.querySelector('.prompt-content').textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    btn.textContent = '[Copiado!]';
+    setTimeout(() => btn.textContent = '[Copiar]', 2000);
+  });
+}
+</script>
+{% endif %}

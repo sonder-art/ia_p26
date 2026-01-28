@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="es" class="theme-eva01">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if title and title != "Inicio" %}{{ title }} | {% endif %}{{ site.name | default("IA - ITAM") }}</title>
+  <meta name="description" content="{{ summary | default(site.description) }}">
+
+  {# Favicon #}
+  <link rel="icon" href="{{ '/favicon.ico' | url }}" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{{ '/apple-touch-icon.png' | url }}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ '/css/styles.css' | url }}">
+  <link rel="stylesheet" href="{{ '/css/themes/fonts.css' | url }}">
+  <link rel="stylesheet" href="{{ '/css/themes/eva01.css' | url }}" id="theme-stylesheet">
+
+  {# KaTeX for math rendering #}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+
+  <style>
+    .sidebar {
+      transition: width 0.2s ease;
+      width: 16rem;
+    }
+    .sidebar.collapsed {
+      width: 3rem;
+    }
+    .sidebar.collapsed .sidebar-content { display: none; }
+    .sidebar.collapsed .sidebar-collapsed-content { display: flex; }
+    .sidebar .sidebar-collapsed-content { display: none; }
+
+    .main-content {
+      transition: margin-left 0.2s ease;
+      margin-left: 16rem;
+    }
+    .sidebar.collapsed ~ .main-content {
+      margin-left: 3rem;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        position: fixed;
+        z-index: 50;
+        height: 100vh;
+        top: 0;
+        transform: translateX(0);
+        transition: transform 0.2s ease;
+      }
+      .sidebar.mobile-hidden {
+        transform: translateX(-100%);
+      }
+      .sidebar.collapsed { width: 16rem; }
+      .sidebar.collapsed .sidebar-content { display: block; }
+      .sidebar.collapsed .sidebar-collapsed-content { display: none; }
+      .main-content { margin-left: 0 !important; }
+    }
+
+    /* Mermaid diagram styling */
+    .mermaid-container {
+      position: relative;
+      overflow-x: auto;
+      padding: 1rem;
+      padding-top: 2.5rem;
+      background: var(--color-bg-secondary, #2d1b4e);
+      border-radius: 0.5rem;
+      border: 1px solid var(--color-border, #3d2b5e);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .mermaid-container:hover {
+      border-color: var(--color-accent, #00ff41);
+    }
+    .mermaid-container .mermaid-expand {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.25rem 0.5rem;
+      font-size: 0.7rem;
+      color: var(--color-text-muted, #a0a0a0);
+      background: var(--color-bg-tertiary, #1a0a2e);
+      border: 1px solid var(--color-border, #3d2b5e);
+      border-radius: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      opacity: 0.7;
+      transition: opacity 0.2s, color 0.2s;
+    }
+    .mermaid-container:hover .mermaid-expand {
+      opacity: 1;
+      color: var(--color-accent, #00ff41);
+    }
+    .mermaid {
+      display: flex;
+      justify-content: center;
+    }
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    /* Mermaid modal overlay */
+    .mermaid-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      padding: 1rem;
+    }
+    .mermaid-modal.active {
+      display: flex;
+    }
+    .mermaid-modal-content {
+      position: relative;
+      max-width: 95vw;
+      max-height: 90vh;
+      overflow: auto;
+      background: var(--color-bg-secondary, #2d1b4e);
+      border: 1px solid var(--color-border, #3d2b5e);
+      border-radius: 0.5rem;
+      padding: 2rem;
+    }
+    #mermaid-modal-diagram svg {
+      max-width: none;
+      width: auto;
+      height: auto;
+      min-width: 60vw;
+    }
+    .mermaid-modal-close svg {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    .mermaid-modal-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      padding: 0.5rem;
+      color: var(--color-text-muted, #a0a0a0);
+      background: var(--color-bg-tertiary, #1a0a2e);
+      border: 1px solid var(--color-border, #3d2b5e);
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: color 0.2s;
+      z-index: 10;
+    }
+    .mermaid-modal-close:hover {
+      color: var(--color-accent, #00ff41);
+    }
+    .mermaid-modal-hint {
+      position: absolute;
+      bottom: 1rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75rem;
+      color: var(--color-text-muted, #a0a0a0);
+      background: var(--color-bg-tertiary, #1a0a2e);
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      opacity: 0.7;
+    }
+
+    /* All prose content uses full available width */
+    .prose {
+      max-width: 100% !important;
+    }
+    .prose > * {
+      max-width: 100%;
+    }
+  </style>
+</head>
+<body class="bg-bg text-text min-h-screen font-sans antialiased">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar fixed left-0 top-0 h-screen bg-bg-secondary border-r border-border flex flex-col z-50">
+
+    <!-- Expanded content -->
+    <div class="sidebar-content flex flex-col h-full">
+      <!-- Header -->
+      <div class="h-12 flex items-center justify-between px-3 border-b border-border flex-shrink-0">
+        <a href="{{ '/' | url }}" class="flex items-center space-x-2 text-accent hover:text-accent-hover transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+          </svg>
+          <span class="font-bold text-sm">{{ site.name | default("Course Site") }}</span>
+        </a>
+        <button id="sidebar-collapse" class="p-1.5 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors" title="Colapsar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation -->
+      <nav id="sidebar-nav" class="flex-1 overflow-y-auto py-3 px-2">
+        {% include "components/nav.njk" %}
+      </nav>
+
+      <!-- Footer -->
+      <div class="p-2 border-t border-border flex-shrink-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-1">
+            <!-- Font size toggle -->
+            <button id="size-toggle" class="p-1.5 rounded text-text-muted hover:text-accent hover:bg-bg-tertiary transition-colors" title="Tamaño">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+              </svg>
+            </button>
+            <!-- OpenDyslexic toggle -->
+            <button id="font-toggle" class="p-1.5 rounded text-text-muted hover:text-accent hover:bg-bg-tertiary transition-colors" title="OpenDyslexic">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+              </svg>
+            </button>
+            <!-- Theme toggle -->
+            <button id="theme-toggle" class="p-1.5 rounded text-text-muted hover:text-accent hover:bg-bg-tertiary transition-colors" title="Tema">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+              </svg>
+            </button>
+          </div>
+          <span class="text-xs text-text-muted">P26</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Collapsed content -->
+    <div class="sidebar-collapsed-content flex-col h-full items-center py-2">
+      <button id="sidebar-expand" class="p-2 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors mb-2" title="Expandir">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+        </svg>
+      </button>
+      <a href="{{ '/' | url }}" class="p-2 rounded hover:bg-bg-tertiary text-accent hover:text-accent-hover transition-colors" title="Inicio">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+      </a>
+      <div class="flex-1"></div>
+      <button id="size-toggle-mini" class="p-2 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors mb-1" title="Tamaño">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+      </button>
+      <button id="font-toggle-mini" class="p-2 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors mb-1" title="OpenDyslexic">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+        </svg>
+      </button>
+      <button id="theme-toggle-mini" class="p-2 rounded hover:bg-bg-tertiary text-text-muted hover:text-accent transition-colors" title="Tema">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+        </svg>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Mobile overlay -->
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden"></div>
+
+  <!-- Main content -->
+  <div class="main-content min-h-screen flex flex-col">
+    <!-- Top bar -->
+    <header class="sticky top-0 z-30 h-12 bg-bg/95 backdrop-blur border-b border-border flex items-center px-4">
+      <button id="mobile-menu" class="p-2 -ml-2 rounded hover:bg-bg-secondary text-text-muted hover:text-accent transition-colors lg:hidden">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <nav class="flex items-center text-sm text-text-muted ml-2 lg:ml-0 overflow-hidden">
+        <a href="{{ '/aleatorio/' | url }}" class="hover:text-accent transition-colors flex-shrink-0">Aleatorio</a>
+        <svg class="w-4 h-4 mx-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        {% if breadcrumbs and breadcrumbs.length > 0 %}
+        <a href="{{ '/' | url }}" class="hover:text-accent transition-colors flex-shrink-0">Inicio</a>
+        {% for crumb in breadcrumbs %}
+        <svg class="w-4 h-4 mx-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+        {% if crumb.url %}
+        <a href="{{ crumb.url | url }}" class="hover:text-accent transition-colors truncate">{{ crumb.title }}</a>
+        {% else %}
+        <span class="text-text truncate">{{ crumb.title }}</span>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <span>{{ title | default("Inicio") }}</span>
+        {% endif %}
+      </nav>
+    </header>
+
+    <!-- Content -->
+    <main id="main-content" class="flex-1 p-4 lg:p-6 xl:p-8">
+      <div class="w-full">
+        {# Top navigation arrows #}
+        {% if prevPage or nextPage %}
+        <nav class="mb-6 flex items-center justify-between text-sm">
+          {% if prevPage %}
+          <a href="{{ prevPage.url | url }}" class="flex items-center gap-1 text-text-muted hover:text-accent transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            <span class="hidden sm:inline truncate max-w-[200px]">{{ prevPage.title }}</span>
+            <span class="sm:hidden">Anterior</span>
+          </a>
+          {% else %}<div></div>{% endif %}
+          {% if nextPage %}
+          <a href="{{ nextPage.url | url }}" class="flex items-center gap-1 text-text-muted hover:text-accent transition-colors">
+            <span class="hidden sm:inline truncate max-w-[200px]">{{ nextPage.title }}</span>
+            <span class="sm:hidden">Siguiente</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+          {% endif %}
+        </nav>
+        {% endif %}
+
+        {# Auto-generated notice #}
+        {% if autoGenerated %}
+        <div class="mb-4 px-3 py-2 bg-bg-tertiary border border-border rounded text-xs text-text-muted flex items-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Este archivo fue generado automáticamente por el framework. Los cambios manuales pueden ser sobrescritos.</span>
+        </div>
+        {% endif %}
+
+        {% if title and title != "Inicio" %}
+        <h1 class="text-2xl font-bold text-text mb-6">{{ title }}</h1>
+        {% endif %}
+
+        <article class="prose max-w-none">
+          {{ content | safe }}
+        </article>
+
+        {% if prevPage or nextPage %}
+        <nav class="mt-10 pt-6 border-t border-border grid grid-cols-2 gap-4">
+          {% if prevPage %}
+          <a href="{{ prevPage.url | url }}" class="group p-3 rounded-lg bg-bg-secondary hover:bg-bg-tertiary transition-colors">
+            <div class="text-xs text-text-muted">Anterior</div>
+            <div class="text-sm font-medium text-text group-hover:text-accent truncate">{{ prevPage.title }}</div>
+          </a>
+          {% else %}<div></div>{% endif %}
+          {% if nextPage %}
+          <a href="{{ nextPage.url | url }}" class="group p-3 rounded-lg bg-bg-secondary hover:bg-bg-tertiary transition-colors text-right">
+            <div class="text-xs text-text-muted">Siguiente</div>
+            <div class="text-sm font-medium text-text group-hover:text-accent truncate">{{ nextPage.title }}</div>
+          </a>
+          {% endif %}
+        </nav>
+        {% endif %}
+      </div>
+    </main>
+
+    <footer class="border-t border-border px-4 py-3 flex items-center justify-between text-xs text-text-muted">
+      <span>{{ site.name | default("IA - ITAM") }}</span>
+      <span class="text-accent">uu_framework</span>
+    </footer>
+  </div>
+
+  <!-- Mermaid modal container -->
+  <div id="mermaid-modal" class="mermaid-modal">
+    <div class="mermaid-modal-content">
+      <button class="mermaid-modal-close" title="Cerrar (Esc)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+      <div id="mermaid-modal-diagram"></div>
+      <div class="mermaid-modal-hint">Click afuera o presiona Esc para cerrar</div>
+    </div>
+  </div>
+
+  <!-- Mermaid.js for diagrams -->
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+
+    // Configure Mermaid with theme based on current site theme
+    const isDark = document.documentElement.classList.contains('theme-eva01');
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'default',
+      themeVariables: isDark ? {
+        primaryColor: '#9d4edd',
+        primaryTextColor: '#e8e8e8',
+        primaryBorderColor: '#3d2b5e',
+        lineColor: '#00ff41',
+        secondaryColor: '#2d1b4e',
+        tertiaryColor: '#1a0a2e',
+        background: '#1a0a2e',
+        mainBkg: '#2d1b4e',
+        nodeBorder: '#9d4edd',
+        clusterBkg: '#2d1b4e',
+        clusterBorder: '#3d2b5e',
+        titleColor: '#e8e8e8',
+        edgeLabelBackground: '#1a0a2e'
+      } : {}
+    });
+
+    // Find all mermaid code blocks and convert to containers
+    document.querySelectorAll('pre code.language-mermaid').forEach((block, index) => {
+      const pre = block.parentElement;
+      const container = document.createElement('div');
+      container.className = 'mermaid-container my-4';
+      container.dataset.mermaidIndex = index;
+
+      // Add expand button
+      const expandBtn = document.createElement('div');
+      expandBtn.className = 'mermaid-expand';
+      expandBtn.innerHTML = `
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+        </svg>
+        <span>Expandir</span>
+      `;
+      container.appendChild(expandBtn);
+
+      // Add mermaid content
+      const mermaidDiv = document.createElement('div');
+      mermaidDiv.className = 'mermaid';
+      mermaidDiv.textContent = block.textContent;
+      container.appendChild(mermaidDiv);
+
+      pre.replaceWith(container);
+    });
+
+    // Render all mermaid diagrams
+    await mermaid.run();
+
+    // Modal functionality
+    const modal = document.getElementById('mermaid-modal');
+    const modalDiagram = document.getElementById('mermaid-modal-diagram');
+    const modalClose = modal.querySelector('.mermaid-modal-close');
+    const modalContent = modal.querySelector('.mermaid-modal-content');
+
+    function openModal(svg) {
+      modalDiagram.innerHTML = '';
+      const clonedSvg = svg.cloneNode(true);
+      // Remove size constraints for modal view
+      clonedSvg.style.maxWidth = 'none';
+      clonedSvg.style.width = 'auto';
+      clonedSvg.style.height = 'auto';
+      modalDiagram.appendChild(clonedSvg);
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+      modalDiagram.innerHTML = '';
+    }
+
+    // Click on container to expand
+    document.querySelectorAll('.mermaid-container').forEach(container => {
+      container.addEventListener('click', () => {
+        // Select SVG inside .mermaid div, not the expand button icon
+        const svg = container.querySelector('.mermaid svg');
+        if (svg) openModal(svg);
+      });
+    });
+
+    // Close modal handlers
+    modalClose.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeModal();
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('active')) {
+        closeModal();
+      }
+    });
+  </script>
+
+  <script>
+    (function() {
+      const pathPrefix = '{{ "/" | url }}';
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      const collapseBtn = document.getElementById('sidebar-collapse');
+      const expandBtn = document.getElementById('sidebar-expand');
+      const mobileMenuBtn = document.getElementById('mobile-menu');
+      const themeToggle = document.getElementById('theme-toggle');
+      const themeToggleMini = document.getElementById('theme-toggle-mini');
+      const fontToggle = document.getElementById('font-toggle');
+      const fontToggleMini = document.getElementById('font-toggle-mini');
+      const sizeToggle = document.getElementById('size-toggle');
+      const sizeToggleMini = document.getElementById('size-toggle-mini');
+      const themeStylesheet = document.getElementById('theme-stylesheet');
+
+      // Collapse/Expand sidebar (desktop)
+      function collapseSidebar() {
+        sidebar.classList.add('collapsed');
+        localStorage.setItem('uu-sidebar', 'collapsed');
+      }
+
+      function expandSidebar() {
+        sidebar.classList.remove('collapsed');
+        localStorage.setItem('uu-sidebar', 'expanded');
+      }
+
+      collapseBtn.addEventListener('click', collapseSidebar);
+      expandBtn.addEventListener('click', expandSidebar);
+
+      // Mobile menu
+      function openMobile() {
+        sidebar.classList.remove('mobile-hidden');
+        overlay.classList.remove('hidden');
+      }
+
+      function closeMobile() {
+        sidebar.classList.add('mobile-hidden');
+        overlay.classList.add('hidden');
+      }
+
+      mobileMenuBtn.addEventListener('click', openMobile);
+      overlay.addEventListener('click', closeMobile);
+
+      // Initialize mobile state
+      if (window.innerWidth < 1024) {
+        sidebar.classList.add('mobile-hidden');
+      }
+
+      // Load sidebar preference
+      if (localStorage.getItem('uu-sidebar') === 'collapsed' && window.innerWidth >= 1024) {
+        sidebar.classList.add('collapsed');
+      }
+
+      // Sidebar nav scroll position persistence
+      const sidebarNav = document.getElementById('sidebar-nav');
+
+      // Restore scroll position on load
+      const savedScrollPos = localStorage.getItem('uu-nav-scroll');
+      if (savedScrollPos && sidebarNav) {
+        sidebarNav.scrollTop = parseInt(savedScrollPos, 10);
+      }
+
+      // Save scroll position before navigating
+      if (sidebarNav) {
+        // Save on any link click in the sidebar
+        sidebarNav.addEventListener('click', (e) => {
+          const link = e.target.closest('a');
+          if (link) {
+            localStorage.setItem('uu-nav-scroll', sidebarNav.scrollTop);
+          }
+        });
+
+        // Also save periodically while scrolling (debounced)
+        let scrollTimeout;
+        sidebarNav.addEventListener('scroll', () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            localStorage.setItem('uu-nav-scroll', sidebarNav.scrollTop);
+          }, 100);
+        });
+      }
+
+      // Theme toggle
+      function toggleTheme() {
+        const isEva = document.documentElement.classList.contains('theme-eva01');
+        const newTheme = isEva ? 'light' : 'eva01';
+        document.documentElement.classList.remove('theme-eva01', 'theme-light');
+        document.documentElement.classList.add('theme-' + newTheme);
+        themeStylesheet.href = pathPrefix + 'css/themes/' + newTheme + '.css';
+        localStorage.setItem('uu-theme', newTheme);
+      }
+
+      themeToggle.addEventListener('click', toggleTheme);
+      themeToggleMini.addEventListener('click', toggleTheme);
+
+      // Font toggle
+      function updateFontStatus() {
+        const isDyslexic = document.body.classList.contains('font-dyslexic');
+        fontToggle.classList.toggle('text-accent', isDyslexic);
+        fontToggle.classList.toggle('bg-bg-tertiary', isDyslexic);
+        fontToggleMini.classList.toggle('text-accent', isDyslexic);
+      }
+
+      function toggleFont() {
+        document.body.classList.toggle('font-dyslexic');
+        localStorage.setItem('uu-dyslexic', document.body.classList.contains('font-dyslexic'));
+        updateFontStatus();
+      }
+
+      fontToggle.addEventListener('click', toggleFont);
+      fontToggleMini.addEventListener('click', toggleFont);
+
+      // Size toggle
+      const sizes = ['normal', 'large', 'x-large'];
+
+      function updateSizeStatus() {
+        const currentSize = localStorage.getItem('uu-size') || 'normal';
+        const isActive = currentSize !== 'normal';
+        sizeToggle.classList.toggle('text-accent', isActive);
+        sizeToggle.classList.toggle('bg-bg-tertiary', isActive);
+        sizeToggleMini.classList.toggle('text-accent', isActive);
+      }
+
+      function toggleSize() {
+        const currentSize = localStorage.getItem('uu-size') || 'normal';
+        const currentIndex = sizes.indexOf(currentSize);
+        const nextIndex = (currentIndex + 1) % sizes.length;
+        const newSize = sizes[nextIndex];
+
+        document.documentElement.classList.remove('size-normal', 'size-large', 'size-x-large');
+        document.documentElement.classList.add('size-' + newSize);
+        localStorage.setItem('uu-size', newSize);
+        updateSizeStatus();
+      }
+
+      sizeToggle.addEventListener('click', toggleSize);
+      sizeToggleMini.addEventListener('click', toggleSize);
+
+      // ============================================
+      // Navigation expand/collapse state management
+      // ============================================
+      const NAV_STATE_KEY = 'uu-nav-expanded';
+
+      function getExpandedSections() {
+        try {
+          return JSON.parse(localStorage.getItem(NAV_STATE_KEY)) || [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveExpandedSections() {
+        const expanded = [...document.querySelectorAll('[data-nav-path][data-expanded="true"]')]
+          .map(el => el.dataset.navPath);
+        localStorage.setItem(NAV_STATE_KEY, JSON.stringify(expanded));
+      }
+
+      // Global function called by toggle buttons
+      window.toggleNavSection = function(sectionPath) {
+        const item = document.querySelector('[data-nav-path="' + sectionPath + '"]');
+        if (!item) return;
+
+        const isExpanded = item.dataset.expanded === 'true';
+        const newState = !isExpanded;
+
+        // Accordion behavior: collapse siblings at same depth when expanding
+        if (newState) {
+          const depth = item.dataset.depth;
+          const parent = item.parentElement;
+          if (parent) {
+            // Find siblings at same depth and collapse them
+            const siblings = parent.querySelectorAll(':scope > [data-nav-path][data-depth="' + depth + '"]');
+            siblings.forEach(function(sibling) {
+              if (sibling !== item && sibling.dataset.expanded === 'true') {
+                sibling.dataset.expanded = 'false';
+                sibling.setAttribute('aria-expanded', 'false');
+              }
+            });
+          }
+        }
+
+        // Toggle this item
+        item.dataset.expanded = String(newState);
+        item.setAttribute('aria-expanded', String(newState));
+
+        // Save state to localStorage
+        saveExpandedSections();
+      };
+
+      function initNavState() {
+        const navItems = document.querySelectorAll('[data-nav-path]');
+        if (navItems.length === 0) return;
+
+        // 1. Start with all sections collapsed (already set in HTML)
+        // They're already data-expanded="false" from the template
+
+        // 2. Expand ancestors of current page (priority over saved state)
+        const currentItem = document.querySelector('[data-active="current"]');
+        if (currentItem) {
+          let parent = currentItem.closest('[data-nav-path]');
+          while (parent) {
+            parent.dataset.expanded = 'true';
+            parent.setAttribute('aria-expanded', 'true');
+            // Move to parent's parent
+            const grandparent = parent.parentElement;
+            if (grandparent) {
+              parent = grandparent.closest('[data-nav-path]');
+            } else {
+              parent = null;
+            }
+          }
+        }
+
+        // Also expand ancestors marked with data-active="ancestor"
+        document.querySelectorAll('[data-active="ancestor"]').forEach(function(ancestor) {
+          const navItem = ancestor.closest('[data-nav-path]');
+          if (navItem) {
+            navItem.dataset.expanded = 'true';
+            navItem.setAttribute('aria-expanded', 'true');
+          }
+        });
+
+        // 3. Restore any additional saved expanded sections (that aren't in current path)
+        const savedExpanded = getExpandedSections();
+        savedExpanded.forEach(function(path) {
+          const item = document.querySelector('[data-nav-path="' + path + '"]');
+          if (item && item.dataset.expanded !== 'true') {
+            // Only restore if it doesn't conflict with accordion
+            // Check if a sibling at same depth is already expanded
+            const depth = item.dataset.depth;
+            const parent = item.parentElement;
+            if (parent) {
+              const expandedSibling = parent.querySelector(':scope > [data-nav-path][data-depth="' + depth + '"][data-expanded="true"]');
+              if (!expandedSibling) {
+                item.dataset.expanded = 'true';
+                item.setAttribute('aria-expanded', 'true');
+              }
+            }
+          }
+        });
+
+        // 4. Auto-scroll current page into view in sidebar
+        if (currentItem) {
+          setTimeout(function() {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            if (sidebarNav) {
+              // Get current item's link element
+              const currentLink = currentItem.querySelector('a[aria-current="page"]') || currentItem.querySelector('a');
+              if (currentLink) {
+                // Check if element is visible in sidebar
+                const navRect = sidebarNav.getBoundingClientRect();
+                const linkRect = currentLink.getBoundingClientRect();
+                const isVisible = linkRect.top >= navRect.top && linkRect.bottom <= navRect.bottom;
+
+                if (!isVisible) {
+                  currentLink.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+              }
+            }
+          }, 150);
+        }
+      }
+
+      // Initialize navigation state after DOM is ready
+      initNavState();
+
+      // Load preferences
+      const savedTheme = localStorage.getItem('uu-theme');
+      if (savedTheme && savedTheme !== 'eva01') {
+        document.documentElement.classList.remove('theme-eva01');
+        document.documentElement.classList.add('theme-' + savedTheme);
+        themeStylesheet.href = pathPrefix + 'css/themes/' + savedTheme + '.css';
+      }
+
+      if (localStorage.getItem('uu-dyslexic') === 'true') {
+        document.body.classList.add('font-dyslexic');
+        updateFontStatus();
+      }
+
+      const savedSize = localStorage.getItem('uu-size');
+      if (savedSize && savedSize !== 'normal') {
+        document.documentElement.classList.add('size-' + savedSize);
+        updateSizeStatus();
+      }
+    })();
+  </script>
+
+  <!-- KaTeX for math rendering -->
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"
+      onload="renderMathInElement(document.body, {
+        delimiters: [
+          {left: '$$', right: '$$', display: true},
+          {left: '$', right: '$', display: false}
+        ],
+        throwOnError: false,
+        ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code', 'svg']
+      });"></script>
+
+</body>
+</html>

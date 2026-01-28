@@ -1,0 +1,124 @@
+# uu_framework GitHub Pages Deployment
+# Builds and deploys the course site to GitHub Pages
+#
+# Site URL: https://www.sonder.art/{repo-name}/
+#
+# This workflow is REUSABLE across all uu_framework repos.
+# Just copy this file - the repo name is auto-detected.
+#
+# Prerequisites:
+# 1. Enable GitHub Pages in repo settings (Settings > Pages)
+# 2. Set source to "GitHub Actions"
+# 3. Custom domain configured at org level (sonder-art.github.io → www.sonder.art)
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # Allow manual trigger
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml
+
+      - name: Install Node.js dependencies
+        working-directory: uu_framework/eleventy
+        run: npm install
+
+      - name: Run preprocessing
+        run: python3 uu_framework/scripts/preprocess.py --verbose
+
+      - name: Build site with Eleventy
+        run: ./uu_framework/eleventy/node_modules/.bin/eleventy --config=uu_framework/eleventy/.eleventy.js
+        env:
+          NODE_ENV: production
+          PATH_PREFIX: "/${{ github.event.repository.name }}/"
+
+      - name: Build CSS with Tailwind
+        run: |
+          mkdir -p _site/css/themes
+          ./uu_framework/eleventy/node_modules/.bin/tailwindcss -c uu_framework/eleventy/tailwind.config.js -i uu_framework/eleventy/src/css/main.css -o _site/css/styles.css --minify
+          cp uu_framework/eleventy/src/css/themes/*.css _site/css/themes/
+
+      - name: Copy favicon files
+        run: |
+          cp clase/favicon.ico clase/apple-touch-icon.png _site/ 2>/dev/null || true
+
+      - name: Copy PDF files
+        run: |
+          # Copy all PDFs except those in b_libros (gitignored)
+          find clase -name "*.pdf" | grep -v "b_libros" | while read pdf; do
+            # Get relative path from clase/
+            rel_path="${pdf#clase/}"
+            # Get directory
+            pdf_dir=$(dirname "$rel_path")
+            # Create directory in _site
+            mkdir -p "_site/$pdf_dir"
+            # Copy PDF
+            cp "$pdf" "_site/$rel_path"
+            echo "Copied: $rel_path"
+          done
+
+      - name: Copy images from content subdirectories
+        run: |
+          # Copy all images directories from content (convention: */images/)
+          find clase -type d -name "images" | grep -v "b_libros" | while read img_dir; do
+            # Get relative path from clase/
+            rel_path="${img_dir#clase/}"
+            # Create directory in _site
+            mkdir -p "_site/$rel_path"
+            # Copy all files in the images directory
+            cp -r "$img_dir"/* "_site/$rel_path/" 2>/dev/null || true
+            echo "Copied images from: $rel_path"
+          done
+
+      - name: Create .nojekyll file
+        run: |
+          touch _site/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    timeout-minutes: 10
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        timeout-minutes: 10

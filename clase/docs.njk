@@ -1,0 +1,12 @@
+---
+pagination:
+  data: docsContent
+  size: 1
+  alias: doc
+permalink: "{{ doc.permalink }}"
+layout: layouts/base.njk
+eleventyComputed:
+  title: "{{ doc.title }}"
+---
+
+{{ doc.content | renderMarkdown | safe }}

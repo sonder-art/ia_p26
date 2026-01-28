@@ -1,0 +1,107 @@
+name: Student PR Validation
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-student-changes:
+    name: Validate Student Directory
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check PR author permissions
+        id: check-author
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          REPO_OWNER: ${{ github.repository_owner }}
+        run: |
+          echo "PR Author: $PR_AUTHOR"
+          echo "Repo Owner: $REPO_OWNER"
+
+          # Bypass check for owner or uumami
+          if [[ "$PR_AUTHOR" == "uumami" || "$PR_AUTHOR" == "$REPO_OWNER" ]]; then
+            echo "bypass=true" >> $GITHUB_OUTPUT
+            echo "✅ Usuario autorizado: $PR_AUTHOR - sin restricciones"
+          else
+            echo "bypass=false" >> $GITHUB_OUTPUT
+            echo "👤 Estudiante: $PR_AUTHOR - validando cambios..."
+          fi
+
+      - name: Checkout repository
+        if: steps.check-author.outputs.bypass != 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate changed files
+        if: steps.check-author.outputs.bypass != 'true'
+        env:
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "=============================================="
+          echo "  VALIDACION DE PULL REQUEST - ESTUDIANTES"
+          echo "=============================================="
+          echo ""
+          echo "👤 Usuario: $PR_AUTHOR"
+          echo "📁 Directorio permitido: estudiantes/$PR_AUTHOR/"
+          echo ""
+
+          # Get list of changed files
+          CHANGED_FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only)
+
+          echo "📋 Archivos modificados en este PR:"
+          echo "$CHANGED_FILES"
+          echo ""
+
+          # Check each file
+          INVALID_FILES=""
+          VALID_COUNT=0
+          INVALID_COUNT=0
+
+          while IFS= read -r file; do
+            if [[ -z "$file" ]]; then
+              continue
+            fi
+
+            # Check if file is within allowed directory
+            if [[ "$file" == estudiantes/"$PR_AUTHOR"/* ]]; then
+              echo "✅ $file"
+              ((VALID_COUNT++))
+            else
+              echo "❌ $file"
+              INVALID_FILES="$INVALID_FILES\n  - $file"
+              ((INVALID_COUNT++))
+            fi
+          done <<< "$CHANGED_FILES"
+
+          echo ""
+          echo "=============================================="
+
+          if [[ $INVALID_COUNT -gt 0 ]]; then
+            echo ""
+            echo "❌ ERROR: CAMBIOS NO PERMITIDOS"
+            echo ""
+            echo "Solo puedes modificar archivos dentro de tu carpeta:"
+            echo "  estudiantes/$PR_AUTHOR/"
+            echo ""
+            echo "Archivos que NO puedes modificar:"
+            echo -e "$INVALID_FILES"
+            echo ""
+            echo "=============================================="
+            echo "¿QUE HACER?"
+            echo "=============================================="
+            echo "1. Elimina los archivos que no te pertenecen de tu commit"
+            echo "2. Asegurate de trabajar SOLO en: estudiantes/$PR_AUTHOR/"
+            echo "3. Usa: git checkout main -- <archivo> para deshacer cambios"
+            echo "4. Haz push de los cambios corregidos"
+            echo ""
+            exit 1
+          else
+            echo ""
+            echo "✅ VALIDACION EXITOSA"
+            echo ""
+            echo "Todos los $VALID_COUNT archivo(s) estan en tu directorio permitido."
+            echo ""
+          fi
