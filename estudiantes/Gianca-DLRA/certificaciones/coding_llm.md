@@ -26,4 +26,4 @@ Fecha: 14/enero/2026
 ![Evidencia LLM](./evidencia_llm.png)
 ```
 o enlace al certificado público:
-https://www.datacamp.com/completed/statement-of-accomplishment/course/71bb282caadba4706fa2ae67e4c16453b019468f
+[Link aqui](https://www.datacamp.com/completed/statement-of-accomplishment/course/71bb282caadba4706fa2ae67e4c16453b019468f)

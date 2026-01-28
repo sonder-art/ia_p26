@@ -1,12 +1,12 @@
 ---
-title: "Plantilla: Evidencia GitHub Concepts"
+title: "Plantilla: Evidencia Python Intro"
 ---
 
 # Plantilla de Entrega
 
 Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certificaciones/` para entregar la evidencia del curso.
 
-**Curso:** [Introduction to GitHub Concepts](https://app.datacamp.com/learn/courses/introduction-to-github-concepts)
+**Curso:** [Introduction to Python for Data Science](https://app.datacamp.com/learn/courses/intro-to-python-for-data-science)
 
 **Requisitos de la evidencia:**
 1. El nombre del curso
@@ -15,10 +15,10 @@ Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certi
 
 ---
 
-# Evidencia: Introduction to GitHub Concepts
+# Evidencia: Introduction to Python for Data Science
 
 Nombre del Estudiante: Giancarlo De La Rosa
-Fecha: 28/enero/2026
+Fecha: [28/enero/2026]
 
 ## Prueba de Finalización
 
@@ -28,8 +28,8 @@ Por favor, inserta aquí abajo una captura de pantalla clara donde se vea:
 3.  Tu usuario logueado.
 
 ```markdown
-![Evidencia GitHub](./evidencia_github.png)
+![Evidencia Python](./evidencia_python.png)
 ```
 
 o enlace al certificado público:
-[Link Aquí](https://www.datacamp.com/completed/statement-of-accomplishment/course/d4afe2c9b6223dbe5fd97dda6d02e28b44e29411)
+[Link Aquí](https://www.datacamp.com/completed/statement-of-accomplishment/course/6af5558301778cbf2a265c14b58e8f7a578f7b26)
