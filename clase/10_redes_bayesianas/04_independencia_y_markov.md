@@ -125,38 +125,48 @@ Esto es *explaining away*: una causa explica el efecto, reduciendo la probabilid
 
 ## d-Separación
 
-La **d-separación** (directed separation) generaliza las tres estructuras canónicas a grafos arbitrarios. Es un algoritmo para determinar si dos conjuntos de variables son condicionalmente independientes dado un tercer conjunto.
+La **d-separación** (directed separation) generaliza las tres estructuras canónicas a **grafos arbitrarios**. Es un criterio *gráfico* (solo depende del grafo, no de los números de las CPTs) para decidir si dos conjuntos de variables deberían ser condicionalmente independientes dado lo que observamos.
 
 ### Definición
 
-Sean $X$, $Y$ y $Z$ conjuntos de nodos en una red Bayesiana. Decimos que $X$ y $Y$ están **d-separados** dado $Z$ (escrito $X \perp_d Y \mid Z$) si **todo camino** entre cualquier nodo en $X$ y cualquier nodo en $Y$ está **bloqueado** por $Z$.
+Sean $X$, $Y$ y $Z$ conjuntos de nodos en una red Bayesiana. Decimos que $X$ y $Y$ están **d-separados** dado $Z$ (escrito $X \perp_d Y \mid Z$) si **no existe ningún camino activo** entre algún nodo en $X$ y algún nodo en $Y$ al condicionar en $Z$.
 
-Un camino está **bloqueado** por $Z$ si existe al menos un nodo $V$ en el camino tal que:
+Aquí, un **camino** es una secuencia de nodos conectados (ignorando la dirección de las flechas). Intuitivamente:
+- Un camino **activo** es una ruta por la que “puede fluir información” dado lo observado.
+- Un camino **bloqueado** es una ruta que queda “cortada” por la evidencia.
 
-1. **$V$ está en una cadena o bifurcación** Y $V \in Z$ (observar $V$ bloquea el camino), O
+Un camino queda **bloqueado** por $Z$ si existe al menos un nodo intermedio $V$ en el camino que cumpla alguna de estas condiciones:
 
-2. **$V$ es un colisionador** Y $V \notin Z$ Y ningún descendiente de $V$ está en $Z$ (no observar el colisionador bloquea el camino).
+1. **$V$ NO es colisionador** en ese camino (está en una cadena o bifurcación) **y** \(V \in Z\).  
+   (Observar un no-colisionador **bloquea**.)
 
-Si un camino no está bloqueado, decimos que está **activo** (la información fluye por él).
+2. **$V$ SÍ es colisionador** en ese camino **y** ni \(V\) ni ningún descendiente de \(V\) está en \(Z\).  
+   (No observar el colisionador —ni nada “debajo” de él— **bloquea**.)
+
+Equivalente (regla en una sola línea): un camino está **activo** dado \(Z\) si **todos** los no-colisionadores del camino están fuera de \(Z\) y **todos** los colisionadores del camino tienen a sí mismos o a un descendiente en \(Z\).
+
+### Regla rápida (tabla)
+
+| Tipo de nodo \(V\) en el camino | ¿Cuándo bloquea \(V\) el camino? | ¿Cuándo deja pasar (no bloquea)? |
+|---|---|---|
+| **No-colisionador** (cadena o bifurcación) | Si \(V \in Z\) | Si \(V \notin Z\) |
+| **Colisionador** (\(\to V \leftarrow\)) | Si \(V \notin Z\) y ningún descendiente de \(V\) está en \(Z\) | Si \(V \in Z\) **o** algún descendiente de \(V\) está en \(Z\) |
 
 ### Algoritmo paso a paso
 
-Para determinar si $X \perp Y \mid Z$:
+Para determinar si \(X \perp_d Y \mid Z\):
 
-**Paso 1:** Lista todos los caminos (ignorando la dirección de las flechas) entre $X$ e $Y$.
+**Paso 1:** Lista todos los caminos entre \(X\) y \(Y\) (tratando las aristas como no dirigidas).
 
-**Paso 2:** Para cada camino, examina cada nodo intermedio $V$:
-- ¿$V$ forma una cadena ($\to V \to$ o $\leftarrow V \leftarrow$)?
-  - Si $V \in Z$: camino bloqueado en $V$
-  - Si $V \notin Z$: camino no bloqueado en $V$
-- ¿$V$ forma una bifurcación ($\leftarrow V \rightarrow$)?
-  - Si $V \in Z$: camino bloqueado en $V$
-  - Si $V \notin Z$: camino no bloqueado en $V$
-- ¿$V$ es un colisionador ($\to V \leftarrow$)?
-  - Si $V \in Z$ o algún descendiente de $V$ está en $Z$: camino **no** bloqueado en $V$
-  - Si $V \notin Z$ y ningún descendiente de $V$ está en $Z$: camino bloqueado en $V$
+**Paso 2:** Para cada camino, revisa sus nodos intermedios \(V\) (no los extremos) y decide si cada \(V\) es:
+- **colisionador** en ese camino (\(\to V \leftarrow\)), o
+- **no-colisionador** (cadena o bifurcación).
 
-**Paso 3:** Si **todos** los caminos están bloqueados, $X \perp Y \mid Z$. Si **algún** camino está activo, $X \not\perp Y \mid Z$.
+**Paso 3:** Declara el camino:
+- **bloqueado** si encuentras al menos un \(V\) que bloquee (según la tabla de arriba)
+- **activo** si *ningún* \(V\) lo bloquea
+
+**Paso 4:** Si **todos** los caminos están bloqueados, entonces \(X \perp_d Y \mid Z\). Si **algún** camino está activo, entonces \(X \not\perp_d Y \mid Z\).
 
 :::example{title="d-Separación en la red de Holmes"}
 
@@ -168,21 +178,25 @@ graph TD
     A --> M(("M"))
 ```
 
-**Pregunta 1:** ¿$B \perp E$? (sin evidencia)
+**Pregunta 1:** ¿\(B \perp_d E\)? (sin evidencia, \(Z=\emptyset\))
 
-Camino: $B \to A \leftarrow E$. El nodo $A$ es un **colisionador**. ¿$A$ está observado? No. → Camino **bloqueado**. → $B \perp E$. Sí, robo y terremoto son independientes.
+Camino: \(B \to A \leftarrow E\). El nodo \(A\) es un **colisionador**. Como \(A \notin Z\) y ningún descendiente de \(A\) está en \(Z\), el camino está **bloqueado**.  
+Conclusión: \(B \perp_d E\). (Robo y terremoto son independientes si no observamos nada.)
 
-**Pregunta 2:** ¿$B \perp E \mid A$?
+**Pregunta 2:** ¿\(B \perp_d E \mid A\)? (aquí \(Z=\{A\}\))
 
-Mismo camino: $B \to A \leftarrow E$. El nodo $A$ es un colisionador, y $A \in Z$. → Camino **activo**. → $B \not\perp E \mid A$. Si observamos la alarma, robo y terremoto se vuelven dependientes (*explaining away*).
+Mismo camino: \(B \to A \leftarrow E\). \(A\) es colisionador y ahora **sí** está observado (\(A\in Z\)), así que el colisionador se “abre” y el camino queda **activo**.  
+Conclusión: \(B \not\perp_d E \mid A\). Si observamos la alarma, robo y terremoto se vuelven dependientes (*explaining away*).
 
-**Pregunta 3:** ¿$J \perp M \mid A$?
+**Pregunta 3:** ¿\(J \perp_d M \mid A\)? (aquí \(Z=\{A\}\))
 
-Camino: $J \leftarrow A \rightarrow M$. El nodo $A$ es una **bifurcación**, y $A \in Z$. → Camino **bloqueado**. → $J \perp M \mid A$. Si sabemos si sonó la alarma, las llamadas de Juan y María son independientes.
+Camino: \(J \leftarrow A \rightarrow M\). El nodo \(A\) es una **bifurcación** (no-colisionador) y está observado (\(A\in Z\)), así que el camino se **bloquea**.  
+Conclusión: \(J \perp_d M \mid A\). Si sabemos si sonó la alarma, las llamadas de Juan y María son independientes.
 
-**Pregunta 4:** ¿$B \perp E \mid J$?
+**Pregunta 4:** ¿\(B \perp_d E \mid J\)? (aquí \(Z=\{J\}\))
 
-Camino: $B \to A \leftarrow E$. El nodo $A$ es un colisionador. $A \notin Z$, pero $J$ es **descendiente** de $A$, y $J \in Z$. → Camino **activo**. → $B \not\perp E \mid J$. Observar que Juan llamó (descendiente de la alarma) también crea dependencia entre robo y terremoto.
+Camino: \(B \to A \leftarrow E\). \(A\) es colisionador. Aunque \(A\notin Z\), sí tenemos un **descendiente observado** (\(J\in Z\) y \(J\) es descendiente de \(A\)). Eso también “abre” el colisionador, así que el camino queda **activo**.  
+Conclusión: \(B \not\perp_d E \mid J\). Observar que Juan llamó (un descendiente de la alarma) también crea dependencia entre robo y terremoto.
 :::
 
 ---

@@ -55,7 +55,29 @@ O equivalentemente, usando la constante de normalización $\alpha$:
 
 $$P(Q \mid E = e) = \alpha \cdot P(Q, E = e)$$
 
-donde $\alpha$ hace que las probabilidades sumen 1.
+donde
+
+$$\alpha \;=\; \frac{1}{P(E=e)} \;=\; \frac{1}{\sum_{q} P(Q=q, E=e)}$$
+
+y sirve para **normalizar**.
+
+**¿Qué significa normalizar?**  
+Después de los pasos 2–3 solemos poder calcular \(P(Q=q, E=e)\) para cada valor posible \(q\) de \(Q\). Esos números son “scores” correctos **en proporción**, pero todavía no forman una distribución sobre \(Q\) porque no necesariamente suman 1.  
+**Normalizar** significa convertirlos en probabilidades válidas dividiendo entre la suma total (de modo que ahora sí sumen 1).
+
+**Ejemplo numérico (sencillo):** supón que \(Q\) es binaria (\(q\in\{\text{sí},\text{no}\}\)) y que calculaste:
+
+$$P(Q=\text{sí},E=e)=0.02,\qquad P(Q=\text{no},E=e)=0.08.$$
+
+Entonces la evidencia es:
+
+$$P(E=e)=0.02+0.08=0.10,$$
+
+la constante es \(\alpha = 1/0.10 = 10\), y el posterior queda:
+
+$$P(Q=\text{sí}\mid E=e)=10\cdot 0.02=0.2,\qquad P(Q=\text{no}\mid E=e)=10\cdot 0.08=0.8.$$
+
+Ahora sí: \(0.2+0.8=1\).
 
 ---
 
@@ -78,12 +100,23 @@ graph LR
 
 "Si me resbalé, ¿cuál es la probabilidad de que haya llovido?"
 
+#### Capa 1: Lenguaje natural
+
+Queremos actualizar nuestra creencia sobre la lluvia usando la evidencia de que hubo resbalón:
+
+1. Fijamos la evidencia observada (\(R=\text{sí}\)).
+2. Probamos cada hipótesis de la consulta (\(L=\text{sí}\) y \(L=\text{no}\)).
+3. Para cada hipótesis, sumamos todos los casos posibles de la variable oculta (\(M\)).
+4. Con esos dos valores no normalizados, normalizamos para obtener una distribución válida.
+
 **Clasificación de variables:**
 - Consulta: $L$
 - Evidencia: $R = \text{sí}$
 - Oculta: $M$
 
-**Paso 1 — Escribir la fórmula:**
+#### Capa 2: Matemática del ejemplo
+
+**Paso 1 — Fórmula del query:**
 
 $$P(L \mid R=\text{sí}) = \alpha \cdot P(L, R=\text{sí}) = \alpha \sum_{m} P(L, M=m, R=\text{sí})$$
 
@@ -95,7 +128,9 @@ Entonces:
 
 $$P(L, R=\text{sí}) = \sum_{m} P(L) \cdot P(M=m \mid L) \cdot P(R=\text{sí} \mid M=m)$$
 
-**Paso 3 — Calcular para $L = \text{sí}$:**
+#### Capa 3: Traza numérica del ejemplo
+
+**Paso 3 — Calcular para \(L = \text{sí}\):**
 
 $$P(L=\text{sí}, R=\text{sí}) = \sum_{m} P(L=\text{sí}) \cdot P(M=m \mid L=\text{sí}) \cdot P(R=\text{sí} \mid M=m)$$
 
@@ -109,7 +144,7 @@ $$= 0.3 \times \Big[ 0.63 + 0.01 \Big]$$
 
 $$= 0.3 \times 0.64 = 0.192$$
 
-**Paso 4 — Calcular para $L = \text{no}$:**
+**Paso 4 — Calcular para \(L = \text{no}\):**
 
 $$P(L=\text{no}, R=\text{sí}) = 0.7 \times \Big[ 0.2 \times 0.7 + 0.8 \times 0.1 \Big]$$
 
@@ -126,6 +161,30 @@ $$P(L=\text{sí} \mid R=\text{sí}) = \frac{0.192}{0.346} \approx 0.555$$
 $$P(L=\text{no} \mid R=\text{sí}) = \frac{0.154}{0.346} \approx 0.445$$
 
 **Interpretación:** Antes de observar el resbalón, la probabilidad de lluvia era $P(L=\text{sí}) = 0.3$. Después de observar que alguien se resbaló, la probabilidad de lluvia sube a $\approx 0.555$. La evidencia del resbalón **actualiza** nuestra creencia sobre la lluvia — la información fluye "hacia atrás" en el grafo gracias al **teorema de Bayes**.
+
+#### Capa 4: Traza de código (mismo ejemplo)
+
+```text
+EnumeraciónInferencia(Q=L, e={R=sí}, red)
+│
+├── q = sí: e_ext = {R=sí, L=sí}
+│   └── EnumerarTodo([L, M, R], {R=sí, L=sí}, red)
+│       ├── L=sí (fijo): P(L=sí) = 0.3
+│       │   └── × EnumerarTodo([M, R], {R=sí, L=sí}, red)
+│       │       ├── M es oculta: sumar
+│       │       ├── M=sí: P(M=sí|L=sí)=0.9
+│       │       │   └── × P(R=sí|M=sí)=0.7  → 0.63
+│       │       ├── M=no: P(M=no|L=sí)=0.1
+│       │       │   └── × P(R=sí|M=no)=0.1  → 0.01
+│       │       └── suma = 0.64
+│       └── resultado no normalizado(q=sí) = 0.3 × 0.64 = 0.192
+│
+├── q = no: (análogo) → 0.154
+│
+└── Normalizar:
+    α = 1 / (0.192 + 0.154) = 1/0.346
+    posterior = {sí: 0.555, no: 0.445}
+```
 
 ---
 
@@ -214,80 +273,160 @@ $$P(B=\text{sí} \mid J=\text{sí}, M=\text{sí}) = \frac{5.926 \times 10^{-4}}{
 
 ---
 
-## Pseudocódigo: Inferencia por Enumeración
+## Algoritmos generales (4 abstracciones)
 
+### Algoritmo 1: `EnumeraciónInferencia` (driver principal)
+
+#### 1) Lenguaje natural
+
+Este algoritmo construye la distribución posterior de la variable de consulta \(Q\):
+1. Recorre cada valor posible \(q\) de \(Q\).
+2. Fija \(Q=q\) junto con la evidencia observada.
+3. Llama al algoritmo recursivo (`EnumerarTodo`) para obtener el valor no normalizado \(P(Q=q, E=e)\).
+4. Normaliza todos esos valores para que sumen 1.
+
+#### 2) Matemática
+
+Para cada valor \(q\) de \(Q\):
+
+$$f(q) \;=\; P(Q=q, E=e) \;=\; \sum_{h} P(Q=q, E=e, H=h).$$
+
+Luego:
+
+$$P(Q=q \mid E=e) \;=\; \frac{f(q)}{\sum_{q'} f(q')}.$$
+
+#### 3) Traza (ejemplo corto)
+
+```text
+Entrada: Q=L, e={R=sí}
+f(L=sí)  = 0.192
+f(L=no)  = 0.154
+normalizador = 0.192 + 0.154 = 0.346
+salida: {L=sí: 0.192/0.346, L=no: 0.154/0.346}
 ```
+
+#### 4) Pseudocódigo
+
+```text
 FUNCIÓN EnumeraciónInferencia(Q, e, red):
-    // Q: variable de consulta
-    // e: evidencia observada (diccionario variable → valor)
-    // red: red Bayesiana (estructura + CPTs)
+    // Asumimos orden topológico en red.variables_topológicas
+    f ← diccionario vacío   // f(q) = P(Q=q, E=e) (sin normalizar)
 
-    resultado ← diccionario vacío
-
-    PARA CADA valor q de Q:
-        // Fijar Q = q en la evidencia extendida
+    PARA CADA valor q en Dominio(Q):
         e_ext ← e ∪ {Q = q}
+        f[q] ← EnumerarTodo(red.variables_topológicas, e_ext, red)
 
-        // Enumerar sobre todas las variables ocultas
-        resultado[q] ← EnumerarTodo(variables(red), e_ext, red)
-
-    // Normalizar
-    α ← 1 / suma(resultado.valores())
-    PARA CADA q en resultado:
-        resultado[q] ← α × resultado[q]
+    normalizador ← suma(f.valores())
+    resultado ← diccionario vacío
+    PARA CADA q en Dominio(Q):
+        resultado[q] ← f[q] / normalizador
 
     RETORNAR resultado
 ```
 
+**Homologación de variables (matemática ↔ código):**
+- \(Q\) ↔ `Q` (variable de consulta)
+- \(q\) ↔ `q` (valor específico de \(Q\))
+- \(E=e\) ↔ `e` (asignación de evidencia)
+- \(f(q)=P(Q=q,E=e)\) ↔ `f[q]`
+- \(\sum_{q'} f(q')\) ↔ `normalizador`
+
+### Algoritmo 2: `EnumerarTodo` (recursión sobre variables)
+
+#### 1) Lenguaje natural
+
+Este algoritmo procesa variables una por una en orden topológico:
+1. Si la variable actual ya tiene valor fijado (consulta/evidencia), multiplica su factor y sigue.
+2. Si no tiene valor fijado (oculta), prueba cada valor posible, suma los resultados y sigue recursivamente.
+3. Cuando no quedan variables, retorna 1 (elemento neutro multiplicativo).
+
+#### 2) Matemática
+
+Sea \(X\) la primera variable pendiente y \(R\) el resto.
+
+- Si \(X\) está fijada en \(e\):
+$$\text{EnumerarTodo}(X::R,e) \;=\; P(X=e[X]\mid \text{Pa}(X)=e[\text{Pa}(X)]) \cdot \text{EnumerarTodo}(R,e).$$
+
+- Si \(X\) no está fijada:
+$$\text{EnumerarTodo}(X::R,e) \;=\; \sum_{x \in \mathrm{Dom}(X)} P(X=x\mid \text{Pa}(X)=e_x[\text{Pa}(X)]) \cdot \text{EnumerarTodo}(R,e_x),$$
+donde \(e_x = e \cup \{X=x\}\).
+
+#### 3) Traza (ejemplo corto)
+
+```text
+EnumerarTodo([L,M,R], {L=sí, R=sí})
+= P(L=sí) * EnumerarTodo([M,R], {L=sí, R=sí})
+= 0.3 * [ P(M=sí|L=sí)*P(R=sí|M=sí) + P(M=no|L=sí)*P(R=sí|M=no) ]
+= 0.3 * (0.9*0.7 + 0.1*0.1)
+= 0.192
 ```
+
+#### 4) Pseudocódigo
+
+```text
 FUNCIÓN EnumerarTodo(vars, e, red):
-    // Caso base: no quedan variables por enumerar
     SI vars está vacío:
         RETORNAR 1.0
 
-    // Tomar la primera variable
-    X ← vars[0]
-    resto ← vars[1:]
+    X ← primer elemento de vars
+    resto ← vars sin el primero
 
-    SI X tiene valor asignado en e:
-        // X es evidencia o consulta: usar su valor fijo
-        RETORNAR P(X = e[X] | padres(X), e) × EnumerarTodo(resto, e, red)
-    SINO:
-        // X es variable oculta: sumar sobre todos sus valores
-        suma ← 0
-        PARA CADA valor x de X:
-            e_ext ← e ∪ {X = x}
-            suma ← suma + P(X = x | padres(X), e_ext) × EnumerarTodo(resto, e_ext, red)
-        RETORNAR suma
+    SI X ∈ e:
+        p ← ProbabilidadCPT(X, e[X], ValoresPadres(X, e), red)
+        RETORNAR p × EnumerarTodo(resto, e, red)
+
+    suma ← 0
+    PARA CADA valor x en Dominio(X):
+        e_ext ← e ∪ {X = x}
+        p ← ProbabilidadCPT(X, x, ValoresPadres(X, e_ext), red)
+        suma ← suma + p × EnumerarTodo(resto, e_ext, red)
+    RETORNAR suma
 ```
 
-### Traza del algoritmo para $P(L \mid R = \text{sí})$
+**Homologación de variables (matemática ↔ código):**
+- \(X\) ↔ `X` (variable actual)
+- \(R\) ↔ `resto` (variables pendientes)
+- \(e\) ↔ `e` (asignación parcial actual)
+- \(e_x = e \cup \{X=x\}\) ↔ `e_ext`
+- \(\sum_{x \in Dom(X)}\) ↔ `PARA CADA valor x en Dominio(X)`
 
-```
-EnumeraciónInferencia(Q=L, e={R=sí}, red)
-│
-├── q = sí: e_ext = {R=sí, L=sí}
-│   └── EnumerarTodo([L, M, R], {R=sí, L=sí}, red)
-│       ├── L=sí (fijo): P(L=sí) = 0.3
-│       │   └── × EnumerarTodo([M, R], {R=sí, L=sí}, red)
-│       │       ├── M es oculta: sumar
-│       │       ├── M=sí: P(M=sí|L=sí)=0.9
-│       │       │   └── × EnumerarTodo([R], {R=sí, L=sí, M=sí})
-│       │       │       └── R=sí (fijo): P(R=sí|M=sí)=0.7
-│       │       │           └── × 1.0 = 0.7
-│       │       │   = 0.9 × 0.7 = 0.63
-│       │       ├── M=no: P(M=no|L=sí)=0.1
-│       │       │   └── × P(R=sí|M=no) = 0.1
-│       │       │   = 0.1 × 0.1 = 0.01
-│       │       └── suma = 0.63 + 0.01 = 0.64
-│       └── = 0.3 × 0.64 = 0.192
-│
-├── q = no: (análogamente)
-│   └── = 0.7 × 0.22 = 0.154
-│
-└── Normalizar: α = 1/(0.192 + 0.154) = 1/0.346
-    resultado = {sí: 0.555, no: 0.445}
-```
+---
+
+## Cómo leer este pseudocódigo sin perderte
+
+### Checklist mental (5 pasos)
+
+1. **Fija evidencia**: parte de \(e\).
+2. **Itera consulta**: para cada \(q\in Dom(Q)\), agrega \(Q=q\).
+3. **Enumera ocultas**: la recursión hace las sumas sobre variables no fijadas.
+4. **Acumula productos**: cada rama multiplica factores locales \(P(X\mid Pa(X))\).
+5. **Normaliza**: divide por la suma total para obtener una distribución válida.
+
+### Invariante clave de la recursión
+
+En cualquier llamada, `EnumerarTodo(vars, e, red)` devuelve:
+
+$$
+\sum_{\text{completamientos de } vars \text{ consistentes con } e}
+\prod_i P(X_i \mid Pa(X_i)).
+$$
+
+Este invariante explica por qué el caso base retorna 1: ya no quedan factores pendientes por multiplicar.
+
+### Mini-tabla de traza (query $P(L \mid R=\text{sí})$)
+
+| Llamada | Variable actual | Acción | Valor parcial |
+|---|---|---|---|
+| `EnumerarTodo([L,M,R], {L=sí,R=sí})` | \(L\) (fijada) | Multiplicar \(P(L=\text{sí})=0.3\) | \(0.3 \times \text{(resto)}\) |
+| `EnumerarTodo([M,R], {L=sí,R=sí})` | \(M\) (oculta) | Sumar \(M=\text{sí},\text{no}\) | \(0.9\cdot0.7 + 0.1\cdot0.1 = 0.64\) |
+| retorno | — | Producto final rama \(L=\text{sí}\) | \(0.3 \cdot 0.64 = 0.192\) |
+
+### Errores comunes (y cómo evitarlos)
+
+- **Olvidar normalizar**: `f[q]` no es posterior todavía; falta dividir por `normalizador`.
+- **No usar orden topológico**: puede dejar padres sin valor al evaluar una CPT.
+- **Confundir evidencia con ocultas**: si \(X\in e\), no se suma sobre \(X\); se fija.
+- **Usar la CPT con evidencia incompleta**: `ProbabilidadCPT` siempre requiere valores de padres.
 
 ---
 

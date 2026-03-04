@@ -231,3 +231,5 @@ clase/b_libros/
 # Homework solutions (do not distribute)
 *_SOLUCION.ipynb
 CLAUDE.md
+openspec/
+.claude/

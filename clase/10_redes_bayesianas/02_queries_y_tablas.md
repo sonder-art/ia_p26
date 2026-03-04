@@ -168,11 +168,27 @@ $$= 0.000269$$
 
 ## Tipos de variables en una consulta
 
-Cuando queremos hacer una **pregunta** (query) a la red, las variables se clasifican en tres tipos:
+Cuando queremos hacer una **pregunta** (query) a la red, *todas* las variables del modelo se reparten en tres tipos.
+
+Por ejemplo, en la red de Sherlock Holmes de arriba, el conjunto total de variables es:
+
+$$\{B, E, A, J, M\} = \{\text{Robo, Terremoto, Alarma, Juan llama, María llama}\}$$
+
+Dado un query concreto, estas variables se dividen en:
+- lo que **preguntamos** (\(Q\))
+- lo que **observamos** (\(\mathcal{E}\), la evidencia con valores fijados)
+- lo que queda **sin mencionar** (\(H\), las ocultas)
+
+**Nota de notación (importante):** en este tema usamos \(E\) para dos cosas distintas según el contexto:
+- En la red de Holmes, \(E\) también es el **nodo Terremoto**.
+- En la notación \(P(Q \mid E=e)\), \(E\) es el **conjunto de variables de evidencia** (y \(e\) son sus valores observados).
+Lo distinguimos por contexto: “\(E=e\)” siempre significa evidencia; “\(E\) (Terremoto)” aparece como una variable más junto a \(B,A,J,M\).
 
 ### 1. Variables de consulta (query variables) — $Q$
 
 Son las variables cuya probabilidad queremos calcular. Es lo que **preguntamos**.
+
+**Regla práctica:** en una expresión \(P(\,\cdot \mid \cdot\,)\), las variables que aparecen **a la izquierda** del “\(\mid\)” son \(Q\).
 
 **Ejemplo:** "¿Cuál es la probabilidad de que haya un robo?" → $Q = \{B\}$
 
@@ -180,13 +196,23 @@ Son las variables cuya probabilidad queremos calcular. Es lo que **preguntamos**
 
 Son las variables cuyo valor **observamos**. Es lo que **sabemos**.
 
-**Ejemplo:** "Sabemos que Juan llamó y María no llamó" → $E = \{J = \text{sí}, M = \text{no}\}$
+Para evitar confusión con el nodo \(E\) (Terremoto) en la red de Holmes, en los ejemplos a veces escribiré \(\mathcal{E}\) para el conjunto de evidencia.
+
+**Regla práctica:** en \(P(\,\cdot \mid \cdot\,)\), la parte **a la derecha** del “\(\mid\)” son evidencias, y por eso aparecen con un valor fijado (por ejemplo \(J=\text{sí}\)).
+
+**Ejemplo:** "Sabemos que Juan llamó y María no llamó" → \(\mathcal{E} = \{J = \text{sí}, M = \text{no}\}\)
 
 ### 3. Variables ocultas (hidden variables) — $H$
 
 Son las variables que **ni preguntamos ni observamos**. Están en la red pero no aparecen en la consulta. Necesitamos **marginalizar** sobre ellas (sumar sobre todos sus valores posibles).
 
-**Ejemplo:** Si preguntamos $P(B \mid J=\text{sí}, M=\text{no})$, entonces $E$ y $A$ son variables ocultas.
+**Regla práctica:** \(H\) son “las que faltan”: todas las variables del modelo menos las que ya clasificaste como \(Q\) o como evidencia.
+
+**Ejemplo (Holmes, paso a paso):** si preguntamos $P(B \mid J=\text{sí}, M=\text{no})$ entonces:
+- Conjunto total: \(\{B,E,A,J,M\}\)
+- Consulta: \(Q=\{B\}\) (a la izquierda del \(\mid\))
+- Evidencia: \(\mathcal{E}=\{J=\text{sí}, M=\text{no}\}\) (a la derecha del \(\mid\))
+- Ocultas: \(H=\{E, A\}\) (lo que queda: Terremoto y Alarma)
 
 ### Visualización
 
@@ -233,10 +259,10 @@ Un **query** (consulta probabilística) es una pregunta de la forma:
 $$P(Q \mid E = e)$$
 
 Donde:
-- $Q$ son las variables de consulta
-- $E = e$ es la evidencia observada
+- $Q$ son las variables de consulta (por ejemplo \(\{B\}\) o \(\{E\}\))
+- $E = e$ es la evidencia observada: el conjunto de variables de evidencia \(E\) **con valores concretos** \(e\) (por ejemplo \(J=\text{sí}, M=\text{no}\))
 
-Para calcular esta probabilidad, usamos la definición de probabilidad condicional:
+Para calcular esta probabilidad, usamos la definición de probabilidad condicional (la misma idea de \(P(X\mid Y)=\frac{P(X,Y)}{P(Y)}\)):
 
 $$P(Q \mid E = e) = \frac{P(Q, E = e)}{P(E = e)}$$
 
@@ -245,6 +271,15 @@ Y tanto el numerador como el denominador requieren **marginalizar** sobre las va
 $$P(Q, E = e) = \sum_{h} P(Q, E = e, H = h)$$
 
 $$P(E = e) = \sum_{q} \sum_{h} P(Q = q, E = e, H = h)$$
+
+Lectura de las sumas:
+- \(\sum_h\) significa “sumar sobre **todas** las asignaciones posibles de las ocultas \(H\)”.  
+  Si \(H\) tiene \(|H|\) variables binarias, entonces hay \(2^{|H|}\) combinaciones de \(h\).
+- \(\sum_q\) aparece en el denominador porque \(P(E=e)\) no debe depender de \(Q\): sumamos también sobre los posibles valores de \(Q\) para “eliminar” a \(Q\) y quedarnos solo con la evidencia.
+
+**Ejemplo concreto (Holmes):** para \(P(B \mid J=\text{sí}, M=\text{no})\), las ocultas son \(H=\{E,A\}\), así que
+
+$$P(B, J=\text{sí}, M=\text{no}) = \sum_{e}\sum_{a} P(B, E=e, A=a, J=\text{sí}, M=\text{no}).$$
 
 La buena noticia es que $P(E = e)$ es simplemente una constante de normalización: hace que las probabilidades sumen 1. A menudo escribimos:
 
