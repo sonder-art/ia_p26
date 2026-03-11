@@ -15,7 +15,7 @@ asueto,02/02/2026,asueto
 13,25/02/2026,Causality: Structural causal models y do-calculus
 14,02/03/2026,Bayesian Inference: Bayesian networks y d-separation
 15,04/03/2026,Monte Carlo Methods: Sampling e importance sampling
-16,09/03/2026,Informed Search: Heuristics y algoritmo A*
+16,09/03/2026,Búsqueda Informada: grafos ponderados — Greedy — Dijkstra — A* — IDA*
 17,11/03/2026,Adversarial Search: Minimax y alpha-beta pruning
 asueto,16/03/2026,asueto
 18,18/03/2026,Simulation-Based Planning: Monte Carlo Tree Search

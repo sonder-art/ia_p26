@@ -2,6 +2,14 @@
 title: "Métodos de Monte Carlo"
 ---
 
+:::homework{id="hw-montecarlo" title="Tarea Monte Carlo: notebooks y aplicación" due="2026-03-18" points="25"}
+Subir la evidencia en un pull request aquí: `01_fundamentos`, `02_reduccion_varianza` y uno de los notebooks de aplicaciones.
+:::
+
+:::exam{id="EX-07" title="Parcial de Monte Carlo" date="2026-03-18" points="10" duration="20 minutos"}
+Evaluación del módulo de Monte Carlo.
+:::
+
 # Métodos de Monte Carlo
 
 > *"The first ENIAC runs were made in late 1947. The idea was to test whether the calculation of neutron diffusion was feasible using Monte Carlo... It worked beyond our expectations."*
@@ -20,26 +28,26 @@ La respuesta —sorprendentemente simple y poderosa— es Monte Carlo: **muestre
 
 ## Materiales y flujo de trabajo
 
-| Paso | Material | Descripción |
-|:----:|---------|-------------|
-| 1 | [12.1 Historia](01_historia.md) | Narrativa: el origen del método |
-| 2 | [12.2 Fundamentos](02_fundamentos.md) | La matemática detrás: LLN, CLT, error |
-| 3 | [Notebook 01 — Fundamentos](notebooks/01_fundamentos.ipynb) | Clase: π, integración, LLN/CLT, primer vistazo a reducción de varianza |
-| 4 | [Notebook 02 — Reducción de Varianza](notebooks/02_reduccion_varianza.ipynb) | Guiado: antithetic, control variates, importance sampling |
-| 5 | Notebook de aplicación (elige uno) | Exploración profunda en un dominio |
+| Paso | Material | Colab | Descripción |
+|:----:|---------|:-----:|-------------|
+| 1 | [12.1 Historia](01_historia.md) | — | Narrativa: el origen del método |
+| 2 | [12.2 Fundamentos](02_fundamentos.md) | — | La matemática detrás: LLN, CLT, error $O(1/\sqrt{n})$, independencia dimensional |
+| 3 | [Notebook 01 — Fundamentos](notebooks/01_fundamentos.ipynb) | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/01_fundamentos.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> | Clase: π, integración, LLN/CLT, primer vistazo a reducción de varianza |
+| 4 | [Notebook 02 — Reducción de Varianza](notebooks/02_reduccion_varianza.ipynb) | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/02_reduccion_varianza.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> | Guiado: antithetic, control variates, importance sampling |
+| 5 | Notebook de aplicación (elige uno) | — | Exploración profunda en un dominio |
 
 ### Notebooks de aplicación
 
 Elige **uno** de los siguientes, o propón el tuyo:
 
-| Notebook | Tema | Herramientas |
-|---------|------|-------------|
-| [03 — Opciones Financieras](notebooks/aplicaciones/03_opcion_financiera.ipynb) | Pricing de opciones europeas y asiáticas con GBM | numpy, scipy |
-| [04 — Inferencia Bayesiana](notebooks/aplicaciones/04_inferencia_bayesiana.ipynb) | Rejection sampling, IS, preview de MCMC | numpy, scipy |
-| [05 — Caminata Aleatoria](notebooks/aplicaciones/05_caminata_aleatoria.ipynb) | Difusión, conexión con Los Álamos, puzzle de Pólya | numpy, matplotlib |
-| [06 — Modelo de Ising](notebooks/aplicaciones/06_ising_metropolis.ipynb) | Metropolis-Hastings en su aplicación original; transiciones de fase; conexión a ML moderno | numpy, matplotlib |
-| [07 — Torneos Deportivos](notebooks/aplicaciones/07_torneos_deportivos.ipynb) | Simulación de Champions League con ratings Elo; suerte vs. talento; formatos de torneo | numpy, scipy |
-| [08 — Epidemias Estocásticas](notebooks/aplicaciones/08_epidemias_sir.ipynb) | Modelo SIR estocástico; extinción aleatoria; inmunidad de rebaño; $R_0$ como umbral probabilístico | numpy, scipy |
+| Notebook | Tema | Herramientas | Colab |
+|---------|------|-------------|:-----:|
+| [03 — Opciones Financieras](notebooks/aplicaciones/03_opcion_financiera.ipynb) | Pricing de opciones europeas y asiáticas con GBM | numpy, scipy | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/03_opcion_financiera.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
+| [04 — Inferencia Bayesiana](notebooks/aplicaciones/04_inferencia_bayesiana.ipynb) | Rejection sampling, IS, preview de MCMC | numpy, scipy | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/04_inferencia_bayesiana.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
+| [05 — Caminata Aleatoria](notebooks/aplicaciones/05_caminata_aleatoria.ipynb) | Difusión, conexión con Los Álamos, puzzle de Pólya | numpy, matplotlib | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/05_caminata_aleatoria.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
+| [06 — Modelo de Ising](notebooks/aplicaciones/06_ising_metropolis.ipynb) | Metropolis-Hastings en su aplicación original; transiciones de fase; conexión a ML moderno | numpy, matplotlib | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/06_ising_metropolis.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
+| [07 — Torneos Deportivos](notebooks/aplicaciones/07_torneos_deportivos.ipynb) | Simulación de Champions League con ratings Elo; suerte vs. talento; formatos de torneo | numpy, scipy | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/07_torneos_deportivos.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
+| [08 — Epidemias Estocásticas](notebooks/aplicaciones/08_epidemias_sir.ipynb) | Modelo SIR estocástico; extinción aleatoria; inmunidad de rebaño; $R_0$ como umbral probabilístico | numpy, scipy | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/12_montecarlo/notebooks/aplicaciones/08_epidemias_sir.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Colab"></a> |
 
 ### Proponer tu propia aplicación
 
