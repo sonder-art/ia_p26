@@ -2,10 +2,6 @@
 title: "Búsqueda Simple"
 ---
 
-:::homework{id="hw-busqueda" title="Tarea Búsqueda: notebooks y aplicación" due="2026-04-08" points="25"}
-Completa los notebooks `01_grafos` y `02_busqueda`, y elige **uno** de los notebooks de aplicación (`03_laberintos` o `04_coloreo_imagen`). Sube la evidencia en un pull request.
-:::
-
 # Búsqueda Simple
 
 > *"The question of whether a computer can think is no more interesting than the question of whether a submarine can swim."*

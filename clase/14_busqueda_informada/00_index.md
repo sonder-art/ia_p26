@@ -2,8 +2,26 @@
 title: "Búsqueda Informada"
 ---
 
-:::homework{id="hw-busqueda-informada" title="Tarea Búsqueda Informada: notebooks y aplicación" due="2026-04-22" points="25"}
-Completa los notebooks `01_grafos_ponderados` y `02_busqueda_informada`, y elige **uno** de los notebooks de aplicación (`03_rutas` o `04_puzzle_8`). Sube la evidencia en un pull request.
+:::exam{id="EX-06" title="Parcial: Redes Bayesianas, Causalidad, Búsqueda Simple y Búsqueda Informada" date="2026-03-18" points="10" duration="20 minutos"}
+**Temas evaluados:**
+- Módulo 10: Redes Bayesianas
+- Módulo 11: Grafos Causales y Causalidad
+- Módulo 13: Búsqueda Simple (BFS, DFS, IDDFS)
+- Módulo 14: Búsqueda Informada (Dijkstra, A\*, heurísticas)
+:::
+
+:::homework{id="hw-modulos-redes-busqueda" title="Tarea Integradora: Redes Bayesianas, Causalidad, Búsqueda Simple y Búsqueda Informada" due="2026-03-18" points="80"}
+Entrega los notebooks de los cuatro módulos (20 puntos cada uno):
+
+- **Módulo 10 — Redes Bayesianas (20 pts):** Notebooks del módulo
+- **Módulo 11 — Grafos Causales (20 pts):** `causal_intro`
+- **Módulo 13 — Búsqueda Simple (20 pts):** `01_grafos`, `02_busqueda` y el notebook de aplicación elegido (`03_laberintos` o `04_coloreo_imagen`)
+- **Módulo 14 — Búsqueda Informada (20 pts):** `01_grafos_ponderados`, `02_busqueda_informada` y el notebook de aplicación elegido (`03_rutas` o `04_puzzle_8`)
+
+**Opciones de entrega (elige una):**
+
+1. **Pull Request + Canvas:** Sube tu trabajo en un pull request al repositorio del curso y pega el enlace en la tarea de Canvas.
+2. **Canvas directo:** Sube los archivos `.ipynb` directamente en la tarea de Canvas.
 :::
 
 # Búsqueda Informada

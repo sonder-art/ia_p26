@@ -2,10 +2,6 @@
 title: "Grafos Causales"
 ---
 
-:::exam{id="EX-06" title="Parcial de Redes Bayesianas y Causalidad" date="2026-03-09" points="10"}
-Evaluación de los módulos de redes bayesianas y causalidad.
-:::
-
 # Grafos Causales
 
 > *"Correlation is not causation but it sure is a hint."*

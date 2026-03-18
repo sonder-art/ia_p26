@@ -1125,13 +1125,19 @@ _TOY_H = {'S': 7, 'A': 5, 'B': 4, 'C': 3, 'G': 0}
 
 
 def _draw_toy_step(ax, current, frontier_nodes, explored_nodes,
-                   node_g, title, solution_path=None, note=None):
+                   node_g, title, solution_path=None, note=None,
+                   frontier_queue=None, priority_mode='f'):
     """Draw one step of a search algorithm on the shared toy graph.
 
     node_g: dict {node: g_value} for nodes with a known g cost.
             Nodes absent from this dict are shown with h(n) only.
     Labels always show g, h, AND f for every discovered node so all
     three algorithms can be compared directly on the same values.
+
+    frontier_queue: list of (priority_value, node_name) sorted ascending
+                    (lowest priority first = next to be expanded).
+                    Displayed as a priority queue box in upper-right corner.
+    priority_mode: 'h' | 'g' | 'f'  — which value drives selection.
     """
     pos = _TOY_POS
     R = 0.42
@@ -1194,6 +1200,22 @@ def _draw_toy_step(ax, current, frontier_nodes, explored_nodes,
             ax.text(x, y - 0.62, lbl, ha='center', va='top', fontsize=7.0,
                     color=COLORS["dark"], zorder=4, linespacing=1.35)
 
+    # --- Frontier priority queue box (upper-right corner) ---
+    # Shows the sorted frontier so students see WHY the next node is chosen.
+    if frontier_queue:
+        mode_labels = {'h': 'h(n)', 'g': 'g(n)', 'f': 'f(n)'}
+        mode_str = mode_labels.get(priority_mode, priority_mode)
+        lines = [f"Cola frontera — ordena por {mode_str}:"]
+        for i, (pri, node) in enumerate(frontier_queue):
+            arrow = "  <-- siguiente" if i == 0 else ""
+            lines.append(f"  {i + 1}. {node}  ({priority_mode}={pri}){arrow}")
+        fq_text = "\n".join(lines)
+        ax.text(8.0, 4.65, fq_text, ha='right', va='top', fontsize=7.0,
+                color=COLORS["dark"], zorder=5,
+                bbox=dict(fc='#EBF5FB', ec=COLORS["blue"],
+                          boxstyle='round,pad=0.35', lw=1.0))
+
+    # --- Note box (bottom center) ---
     if note:
         ax.text(3.75, -0.40, note, ha='center', va='top', fontsize=7.5,
                 color=COLORS["dark"],
@@ -1212,59 +1234,70 @@ def plot_greedy_step_by_step() -> None:
     Shows g, h, and f at every node — even though Greedy only uses h.
     The key visual: at step 2 Greedy picks B (h=4) over A (h=5),
     but g(B)=4 > g(A)=1 and f(B)=8 > f(A)=6.  Greedy ignores g.
+
+    Greedy path: S->B->C->G  cost=7  (suboptimal)
+    Optimal:     S->A->C->G  cost=4
+    A is discovered (g=1) but never expanded — Greedy chose B first.
     """
-    # g values along Greedy's chosen path:
-    #   Greedy discovers A and B from S (g via S→A=1, S→B=4)
-    #   Then picks B (h=4), discovers C from B (g via B→C = 5)
-    #   Then picks C (h=3), discovers G from C (g via B→C→G = 7)
-    #   A is discovered (g=1) but never expanded
+    # Each step: (current, frontier_set, explored_set, node_g,
+    #             title, solution_path, note, frontier_queue)
+    # frontier_queue: [(h_value, node), ...] sorted ascending = next to expand first
+    # BUG FIX: panel 5 — when G is popped as goal, A is still in frontier
     steps = [
-        # (current, frontier_set, explored_set, node_g, title, solution_path, note)
         (None,
          {'S'}, set(),
          {'S': 0},
-         "Inicio\nFrontera: {S}  —  g=0, h=7, f=7",
-         None, None),
+         "Inicio  —  Greedy usa prioridad h(n)\nFrontera inicial: {S}  [h(S)=7]",
+         None, None,
+         [(7, 'S')]),
 
         ('S',
          {'A', 'B'}, {'S'},
          {'S': 0, 'A': 1, 'B': 4},
-         "Expande S  [h=7]\nDescubre A(h=5) y B(h=4)",
-         None, None),
+         "Expande S  [h=7]  \u2192  descubre A y B\nFrontera: B(h=4), A(h=5)",
+         None, None,
+         [(4, 'B'), (5, 'A')]),
 
         ('B',
          {'A', 'C'}, {'S', 'B'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 5},
-         "Expande B  [h=4, menor h!]\nh(B)=4 < h(A)=5  —  Greedy elige B",
+         "Expande B  [h=4 < h(A)=5]  \u2190 Greedy elige h minimo\n"
+         "Descubre C desde B: g(C)=g(B)+1=5",
          None,
-         "g(B)=4 > g(A)=1 y f(B)=8 > f(A)=6  —  Greedy ignora g y f"),
+         "g(B)=4 > g(A)=1  y  f(B)=8 > f(A)=6  \u2014  Greedy ignora g y f",
+         [(3, 'C'), (5, 'A')]),
 
         ('C',
          {'A', 'G'}, {'S', 'B', 'C'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 5, 'G': 7},
-         "Expande C  [h=3, menor h!]\nDescubre G (g=5+2=7, h=0, f=7)",
-         None, None),
+         "Expande C  [h=3 < h(A)=5]  \u2190 Greedy elige h minimo\n"
+         "Descubre G: g(G)=g(C)+2=7,  h(G)=0,  f=7",
+         None, None,
+         [(0, 'G'), (5, 'A')]),
 
+        # FIX: A is still in the frontier when G is expanded as goal
         ('G',
-         set(), {'S', 'B', 'C'},
+         {'A'}, {'S', 'B', 'C'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 5, 'G': 7},
-         "META: G  —  camino hallado\nS->B->C->G  costo = 4+1+2 = 7",
-         ['S', 'B', 'C', 'G'], None),
+         "META: G  [h=0]  \u2014  camino hallado\nS\u2192B\u2192C\u2192G   costo = 4+1+2 = 7",
+         ['S', 'B', 'C', 'G'], None,
+         None),
 
         (None,
          {'A'}, {'S', 'B', 'C', 'G'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 5, 'G': 7},
-         "A quedo en frontera sin expandirse\n[h=5 parecia peor que h(B)=4]",
+         "A quedo en frontera sin expandirse\n[h(A)=5 parecia peor que h(B)=4]",
          ['S', 'B', 'C', 'G'],
-         "Camino optimo: S->A->C->G  costo=1+1+2=4  (vs 7 hallado)\n"
-         "g(A)=1 < g(B)=4 pero Greedy solo miro h"),
+         "Camino optimo: S\u2192A\u2192C\u2192G  costo=1+1+2=4  (hallado: 7)\n"
+         "g(A)=1 < g(B)=4 pero Greedy solo miro h",
+         None),
     ]
 
     fig, axes = plt.subplots(2, 3, figsize=(15, 9.5))
     fig.suptitle(
-        "Greedy best-first paso a paso  —  prioridad = h(n)  [ignora g]\n"
-        "Cada nodo muestra: g (costo pagado) | h (estimacion) | f = g+h\n"
-        "[naranja] expandiendo  [azul] frontera  [verde] explorado  [gris] no visto",
+        "Greedy best-first paso a paso  \u2014  prioridad = h(n)  [ignora g]\n"
+        "Cada nodo: g (costo real) | h (estimacion a meta) | f = g+h\n"
+        "[naranja] expandiendo  [azul] en frontera  [verde] explorado  [gris] no visto",
         fontsize=10, fontweight='bold')
     axes = axes.flatten()
 
@@ -1274,8 +1307,9 @@ def plot_greedy_step_by_step() -> None:
         mpatches.Patch(color=COLORS["green"], label="Explorado"),
         mpatches.Patch(color=COLORS["light"], label="No visitado"),
     ]
-    for ax, (cur, fr, ex, ng, ttl, sp, nt) in zip(axes, steps):
-        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt)
+    for ax, (cur, fr, ex, ng, ttl, sp, nt, fq) in zip(axes, steps):
+        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt,
+                       frontier_queue=fq, priority_mode='h')
 
     fig.legend(handles=legend_patches, loc='lower center', ncol=4,
                fontsize=9, framealpha=0.9, bbox_to_anchor=(0.5, -0.01))
@@ -1288,53 +1322,68 @@ def plot_dijkstra_step_by_step() -> None:
     Shows g, h, and f at every node — even though Dijkstra only uses g.
     The key visual: Dijkstra correctly expands A (g=1) before B (g=4),
     but also expands B, ignoring h values entirely.
+
+    Expansion order: S, A, C, B, G
+    Optimal path: S->A->C->G  cost=4
     """
+    # Each step: (current, frontier_set, explored_set, node_g,
+    #             title, solution_path, note, frontier_queue)
+    # frontier_queue: [(g_value, node), ...] sorted ascending
     steps = [
-        # (current, frontier_set, explored_set, node_g, title, solution_path, note)
         (None,
          {'S'}, set(),
          {'S': 0},
-         "Inicio\ng(S)=0  (h y f mostrados para comparar)",
-         None, None),
+         "Inicio  \u2014  Dijkstra usa prioridad g(n)\ng(S)=0  (h y f se muestran para comparar)",
+         None, None,
+         [(0, 'S')]),
 
         ('S',
          {'A', 'B'}, {'S'},
          {'S': 0, 'A': 1, 'B': 4},
-         "Expande S  [g=0]\nRelajacion: g[A]=1,  g[B]=4",
-         None, None),
+         "Expande S  [g=0]  \u2192  relajacion: g[A]=1,  g[B]=4\nFrontera: A(g=1), B(g=4)",
+         None, None,
+         [(1, 'A'), (4, 'B')]),
 
         ('A',
          {'B', 'C', 'G'}, {'S', 'A'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 11},
-         "Expande A  [g=1, menor g!]\nRelajacion: g[C]=2,  g[G]=11",
-         None, None),
+         "Expande A  [g=1 < g(B)=4]  \u2190 Dijkstra elige g minimo\n"
+         "Relajacion: g[C]=1+1=2,  g[G]=1+10=11",
+         None, None,
+         [(2, 'C'), (4, 'B'), (11, 'G')]),
 
         ('C',
          {'B', 'G'}, {'S', 'A', 'C'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "Expande C  [g=2]\nRelajacion: g[G]: 11 -> 4  !",
+         "Expande C  [g=2]  \u2192  relajacion: g[G]: 11\u21924  !\n"
+         "g(G) via S\u2192A\u2192C\u2192G = 1+1+2 = 4",
          None,
-         "g[G] se actualiza 11->4  (f[G]: 11->4)  via S->A->C->G"),
+         "g[G] se actualiza: 11 \u2192 4  (ruta mas barata encontrada)",
+         [(4, 'B'), (4, 'G')]),
 
         ('B',
          {'G'}, {'S', 'A', 'C', 'B'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "Expande B  [g=4]  —  Dijkstra NO usa h\nB->C: g=5 > g[C]=2, sin relajacion",
+         "Expande B  [g=4]  \u2014  Dijkstra NO usa h\n"
+         "B\u2192C: g=4+1=5 > g[C]=2, sin relajacion",
          None,
-         "h(B)=4 sugeria que B era prometedor — Dijkstra lo ignora y lo expande igual"),
+         "h(B)=4 sugeria que B era prometedor \u2014 Dijkstra lo ignora y lo expande igual",
+         [(4, 'G')]),
 
         ('G',
          set(), {'S', 'A', 'C', 'B'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "META: G  [g=4]  —  camino optimo\nS->A->C->G  costo = 1+1+2 = 4",
-         ['S', 'A', 'C', 'G'], None),
+         "META: G  [g=4]  \u2014  camino optimo garantizado\n"
+         "S\u2192A\u2192C\u2192G   costo = 1+1+2 = 4",
+         ['S', 'A', 'C', 'G'], None,
+         None),
     ]
 
     fig, axes = plt.subplots(2, 3, figsize=(15, 9.5))
     fig.suptitle(
-        "Dijkstra paso a paso  —  prioridad = g(n)  [ignora h]\n"
-        "Cada nodo muestra: g (costo pagado) | h (estimacion) | f = g+h\n"
-        "[naranja] expandiendo  [azul] frontera  [verde] explorado  [gris] no visto",
+        "Dijkstra paso a paso  \u2014  prioridad = g(n)  [ignora h]\n"
+        "Cada nodo: g (costo real desde S) | h (estimacion a meta) | f = g+h\n"
+        "[naranja] expandiendo  [azul] en frontera  [verde] explorado  [gris] no visto",
         fontsize=10, fontweight='bold')
     axes = axes.flatten()
 
@@ -1344,8 +1393,9 @@ def plot_dijkstra_step_by_step() -> None:
         mpatches.Patch(color=COLORS["green"], label="Explorado"),
         mpatches.Patch(color=COLORS["light"], label="No visitado"),
     ]
-    for ax, (cur, fr, ex, ng, ttl, sp, nt) in zip(axes, steps):
-        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt)
+    for ax, (cur, fr, ex, ng, ttl, sp, nt, fq) in zip(axes, steps):
+        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt,
+                       frontier_queue=fq, priority_mode='g')
 
     fig.legend(handles=legend_patches, loc='lower center', ncol=4,
                fontsize=9, framealpha=0.9, bbox_to_anchor=(0.5, -0.01))
@@ -1358,54 +1408,73 @@ def plot_astar_step_by_step() -> None:
     Shows g, h, and f at every node — A* uses f = g+h.
     Key comparison with Dijkstra: same g values, but f directs focus.
     B (f=8) is never expanded because f(B) > optimal cost.
+
+    Expansion order: S, A, C, G  (B is never expanded)
+    Optimal path: S->A->C->G  cost=4
     """
+    # Each step: (current, frontier_set, explored_set, node_g,
+    #             title, solution_path, note, frontier_queue)
+    # frontier_queue: [(f_value, node), ...] sorted ascending
+    # BUG FIX: panel 5 — when G is popped as goal, B is still in frontier
     steps = [
-        # (current, frontier_set, explored_set, node_g, title, solution_path, note)
         (None,
          {'S'}, set(),
          {'S': 0},
-         "Inicio\nf(S) = g(S)+h(S) = 0+7 = 7",
-         None, None),
+         "Inicio  \u2014  A* usa prioridad f(n) = g(n) + h(n)\n"
+         "f(S) = g(S)+h(S) = 0+7 = 7",
+         None, None,
+         [(7, 'S')]),
 
         ('S',
          {'A', 'B'}, {'S'},
          {'S': 0, 'A': 1, 'B': 4},
-         "Expande S  [f=7]\nA: f=1+5=6,  B: f=4+4=8",
-         None, None),
+         "Expande S  [f=7]  \u2192  descubre A y B\n"
+         "A: f=1+5=6,  B: f=4+4=8",
+         None, None,
+         [(6, 'A'), (8, 'B')]),
 
         ('A',
          {'B', 'C', 'G'}, {'S', 'A'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 11},
-         "Expande A  [f=6, menor f!]\nC: f=2+3=5,  G: f=11+0=11",
-         None, None),
+         "Expande A  [f=6 < f(B)=8]  \u2190 A* elige f minimo\n"
+         "C: f=2+3=5,  G: f=1+10+0=11",
+         None, None,
+         [(5, 'C'), (8, 'B'), (11, 'G')]),
 
         ('C',
          {'B', 'G'}, {'S', 'A', 'C'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "Expande C  [f=5]\nRelajacion: f[G]: 11 -> (2+2)+0 = 4  !",
+         "Expande C  [f=5]  \u2192  relajacion: f[G]: 11\u21924  !\n"
+         "g(G) via S\u2192A\u2192C\u2192G = 2+2 = 4,  f(G) = 4+0 = 4",
          None,
-         "f[G] se actualiza 11->4  (g[G]=4, h[G]=0)"),
+         "f[G] se actualiza: 11 \u2192 4  (g[G]=4, h[G]=0)",
+         [(4, 'G'), (8, 'B')]),
 
+        # FIX: B is still in the frontier when G is expanded as goal
         ('G',
-         set(), {'S', 'A', 'C'},
+         {'B'}, {'S', 'A', 'C'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "META: G  [f=4]  —  camino optimo\nS->A->C->G  costo = 1+1+2 = 4",
-         ['S', 'A', 'C', 'G'], None),
+         "META: G  [f=4]  \u2014  camino optimo garantizado\n"
+         "S\u2192A\u2192C\u2192G   costo = 1+1+2 = 4",
+         ['S', 'A', 'C', 'G'], None,
+         None),
 
         (None,
          {'B'}, {'S', 'A', 'C', 'G'},
          {'S': 0, 'A': 1, 'B': 4, 'C': 2, 'G': 4},
-         "B quedo en frontera sin expandirse\nf(B)=8 > costo optimo=4",
+         "B quedo en frontera sin expandirse\n"
+         "f(B)=4+4=8 > costo optimo=4",
          ['S', 'A', 'C', 'G'],
-         "A* evita B: f(B)=8 > 4  —  Dijkstra lo expandio porque ignora h\n"
-         "g(B)=4 igual que g(G)=4, pero h(B)=4 revela que B no puede mejorar"),
+         "A* evita B: f(B)=8 > 4  \u2014  Dijkstra lo expandio porque ignora h\n"
+         "g(B)=4 = g(G)=4, pero h(B)=4 revela que B no puede mejorar",
+         None),
     ]
 
     fig, axes = plt.subplots(2, 3, figsize=(15, 9.5))
     fig.suptitle(
-        "A* paso a paso  —  prioridad = f(n) = g(n) + h(n)\n"
-        "Cada nodo muestra: g (costo pagado) | h (estimacion) | f = g+h\n"
-        "[naranja] expandiendo  [azul] frontera  [verde] explorado  [gris] no visto",
+        "A* paso a paso  \u2014  prioridad = f(n) = g(n) + h(n)\n"
+        "Cada nodo: g (costo real desde S) | h (estimacion a meta) | f = g+h\n"
+        "[naranja] expandiendo  [azul] en frontera  [verde] explorado  [gris] no visto",
         fontsize=10, fontweight='bold')
     axes = axes.flatten()
 
@@ -1415,8 +1484,9 @@ def plot_astar_step_by_step() -> None:
         mpatches.Patch(color=COLORS["green"], label="Explorado"),
         mpatches.Patch(color=COLORS["light"], label="No visitado"),
     ]
-    for ax, (cur, fr, ex, ng, ttl, sp, nt) in zip(axes, steps):
-        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt)
+    for ax, (cur, fr, ex, ng, ttl, sp, nt, fq) in zip(axes, steps):
+        _draw_toy_step(ax, cur, fr, ex, ng, ttl, sp, nt,
+                       frontier_queue=fq, priority_mode='f')
 
     fig.legend(handles=legend_patches, loc='lower center', ncol=4,
                fontsize=9, framealpha=0.9, bbox_to_anchor=(0.5, -0.01))

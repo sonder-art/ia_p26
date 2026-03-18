@@ -3,11 +3,16 @@ title: "Métodos de Monte Carlo"
 ---
 
 :::homework{id="hw-montecarlo" title="Tarea Monte Carlo: notebooks y aplicación" due="2026-03-18" points="25"}
-Subir la evidencia en un pull request aquí: `01_fundamentos`, `02_reduccion_varianza` y uno de los notebooks de aplicaciones.
-:::
+Entrega los siguientes notebooks del módulo:
 
-:::exam{id="EX-07" title="Parcial de Monte Carlo" date="2026-03-18" points="10" duration="20 minutos"}
-Evaluación del módulo de Monte Carlo.
+- `01_fundamentos`
+- `02_reduccion_varianza`
+- Un notebook de aplicación (elige uno de la lista del módulo)
+
+**Opciones de entrega (elige una):**
+
+1. **Pull Request + Canvas:** Sube tu trabajo en un pull request al repositorio del curso y pega el enlace en la tarea de Canvas.
+2. **Canvas directo:** Sube los archivos `.ipynb` directamente en la tarea de Canvas.
 :::
 
 # Métodos de Monte Carlo
