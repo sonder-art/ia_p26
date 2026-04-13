@@ -4,7 +4,7 @@ title: "Juegos como búsqueda"
 
 | Notebook | Colab |
 |---------|:-----:|
-| Notebook 01 — Juegos y árboles | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
+| Notebook 01 — Juegos y árboles | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/01_juegos_y_arboles.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
 
 ---
 
@@ -149,66 +149,109 @@ class TicTacToe:
 
 ## 5. Ejemplo: Nim
 
-Nim es el juego de ejemplo principal de este módulo porque su árbol cabe completamente en una figura, lo cual nos permite trazar minimax paso a paso.
+Nim es el juego de ejemplo principal de este módulo porque su árbol cabe completamente en una figura — podemos trazar minimax nodo por nodo sin perder el hilo. Además esconde una propiedad matemática que veremos en la sección 15.5.
 
-**Reglas de Nim**: hay $k$ pilas de fichas con tamaños dados. Dos jugadores alternan turnos. En tu turno: **retira al menos 1 ficha de exactamente una pila**. El jugador que retire la última ficha **gana**.
+### Las reglas del juego
+
+Imagina que hay $k$ montones de fichas sobre la mesa. En cada turno, el jugador activo elige **uno** de los montones y retira **todas las fichas que quiera** de ese montón — pero al menos una. No se puede pasar sin mover, ni retirar fichas de más de un montón a la vez. **El jugador que retira la última ficha gana** (y deja al oponente sin movimiento).
+
+Eso es todo. Tres frases. Pero la estrategia óptima es profundamente no-obvia.
+
+### Por qué el juego es interesante: un ejemplo de razonamiento estratégico
+
+Considera **Nim(1,2)**: pila A tiene 1 ficha, pila B tiene 2 fichas. Tú eres MAX y mueves primero.
+
+Imagina que retiras las 2 fichas de B y dejas el estado *(1,0)*. Ahora MIN tiene una sola ficha en A. MIN la retira. Todas las pilas vacías: **MAX no puede mover → MAX pierde**. Mala decisión.
+
+Ahora imagina que retiras 1 ficha de B y dejas el estado *(1,1)*. Cada pila tiene exactamente 1 ficha. Cualquier cosa que haga MIN — retire la de A o la de B — quedará una ficha en la otra pila. MAX la retira. Todas las pilas vacías: **MIN no puede mover → MAX gana**. La clave fue forzar una posición *simétrica* que le da el control a MAX.
+
+Esta intuición no siempre es obvia. Minimax la descubrirá automáticamente.
+
+### Partida de ejemplo completa
 
 ```
-Estado inicial: Nim(1,2) — pila A tiene 1 ficha, pila B tiene 2 fichas.
+Estado inicial: (1, 2)  →  pila A = 1 ficha,  pila B = 2 fichas
 
-Turno 1 (MAX): Retira 1 de B → estado (1,1)
-Turno 2 (MIN): Retira 1 de A → estado (0,1)
-Turno 3 (MAX): Retira 1 de B → estado (0,0)
-Turno 4 (MIN): No hay fichas. MIN no puede mover. MAX GANA.
+Turno 1 (MAX): retira 1 de B  →  estado (1, 1)   ← jugada óptima
+Turno 2 (MIN): retira 1 de A  →  estado (0, 1)   ← MIN tiene que mover algo
+Turno 3 (MAX): retira 1 de B  →  estado (0, 0)   ← MAX toma la última ficha
+              ╔══════════════════════════════════╗
+              ║  (0,0): MIN no puede mover       ║
+              ║  → MAX GANA                      ║
+              ╚══════════════════════════════════╝
 ```
 
-Mapeamos los 7 componentes para Nim de $k$ pilas:
+### Convención de utilidad: ¿por qué solo un número?
 
-- **Estado inicial**: tupla de enteros, e.g. `(1, 2)` para dos pilas de tamaño 1 y 2.
-- **Jugadores**: alterna MAX/MIN en cada turno; se controla con un parámetro booleano en la recursión.
-- **Acciones**: `(pile_idx, amount)` — pila a modificar y cuántas fichas retirar. Desde estado $(a, b)$: acciones = $\{(0,1), \ldots, (0,a)\} \cup \{(1,1), \ldots, (1,b)\}$.
-- **Resultado**: nuevo estado con la pila reducida en `amount`.
-- **Terminal**: $(0, 0, \ldots, 0)$ — todas las pilas vacías.
-- **Utilidad**: el jugador que **llega** a $(0,\ldots,0)$ habiendo tomado la última ficha **gana** (+1). El jugador cuyo turno es cuando el estado ya es terminal **pierde** (−1). Convención: utilidad desde la perspectiva de quien ACABA de mover al estado terminal.
+En Nim solo hay dos resultados para MAX: **gana (+1)** o **pierde (−1)**. El empate no existe.
+
+Como el juego es de **suma cero**, si MAX gana (+1) entonces MIN pierde (−1), y viceversa. Conocer el resultado de uno determina completamente el del otro. Por eso usamos **un solo número** — la utilidad desde la perspectiva de MAX — en lugar de un par. Esto no es una simplificación: es la consecuencia directa de la propiedad de suma cero que vimos en la sección 2.
+
+**Convención de terminal**: cuando el estado es $(0,0,\ldots,0)$, el jugador cuyo turno es en ese momento **no puede mover y pierde**. Así:
+- Si le toca a MAX en $(0,0)$: MAX no puede mover → MAX pierde → utilidad = **−1**
+- Si le toca a MIN en $(0,0)$: MIN no puede mover → MIN pierde → utilidad = **+1** (bueno para MAX)
+
+### Los 7 componentes formales
+
+- **Estado inicial**: tupla de enteros, e.g. `(1, 2)` — cada número es el tamaño de una pila. El orden importa: el primer número es la pila A, el segundo la pila B, etc.
+- **Jugadores**: alterna MAX/MIN en cada turno. En la implementación se controla con un booleano `es_max` que se invierte en cada llamada recursiva.
+- **Acciones** desde estado $(a, b)$: todas las combinaciones *(pila, cantidad)*. Las acciones legales son retirar 1, 2, … hasta $a$ de la pila A, y 1, 2, … hasta $b$ de la pila B. En notación: `A-1`, `A-2`, …, `B-1`, `B-2`, …
+- **Resultado**: el estado con la pila elegida reducida en la cantidad retirada. `resultado((1,2), B-1) = (1,1)`.
+- **Terminal**: el estado $(0, 0, \ldots, 0)$ — todas las pilas vacías, ningún movimiento posible.
+- **Utilidad**: desde la perspectiva de MAX. Si le toca a MAX en el terminal → −1; si le toca a MIN → +1.
+
+### Lectura del árbol de Nim(1,2)
 
 ![Reglas y árbol de Nim]({{ '/15_adversarial_search/images/03_nim_rules_and_tree.png' | url }})
+
+La figura de la derecha muestra el **árbol de juego completo** de Nim(1,2). Así se lee:
+
+- **Cada nodo** es un estado del juego, escrito como la tupla *(A, B)*. El nodo raíz *(1,2)* es el estado inicial.
+- **Nivel superior (azul)**: nodo MAX — es el turno de MAX, que quiere maximizar.
+- **Nivel siguiente (rojo)**: nodo MIN — es el turno de MIN, que quiere minimizar.
+- Los niveles siguen alternando: MAX, MIN, MAX, MIN… hasta las hojas.
+- **Cada arista** es un movimiento legal. La etiqueta sobre la arista (p.ej. `B-1`) dice qué pila se usó y cuántas fichas se retiraron. La arista `A-1` desde *(1,2)* lleva a *(0,2)* porque se retiró 1 ficha de la pila A.
+- **Nodos terminales** (cuadrados): el estado *(0,0)* donde ningún jugador puede mover. El número dentro del cuadrado es la utilidad desde la perspectiva de MAX: **+1** si MAX gana (el turno corresponde a MIN en ese terminal), **−1** si MAX pierde (el turno corresponde a MAX en ese terminal).
+- **El valor junto a cada nodo no-terminal** es el valor minimax: el resultado garantizado bajo juego perfecto de ambos lados desde ese nodo. Lo calcularemos formalmente en la sección 3.
+- La **arista verde gruesa** marca la jugada óptima de MAX desde la raíz: B-1 → *(1,1)*.
+
+Observa que todas las hojas del árbol son *(0,0)* pero con **valores distintos** (+1 o −1). Esto es consistente: el valor depende de *quién tiene el turno* cuando se llega a *(0,0)*, no solo del estado en sí.
 
 ```python
 class Nim:
     """Juego de Nim para k pilas."""
 
     def estado_inicial(self, pilas):
-        return tuple(pilas)
+        return tuple(pilas)          # e.g. (1, 2) para pila A=1, pila B=2
 
     def jugador(self, s, turno_max=True):
-        # El turno se pasa como parámetro externo en la recursión
         return 'MAX' if turno_max else 'MIN'
 
     def acciones(self, s):
+        # Genera todos los movimientos legales: (índice_pila, cantidad_a_retirar)
         acciones = []
         for i, pila in enumerate(s):
-            for cant in range(1, pila + 1):
+            for cant in range(1, pila + 1):   # retirar entre 1 y pila[i] fichas
                 acciones.append((i, cant))
         return acciones
 
     def resultado(self, s, a):
         pile_idx, amount = a
         nuevo = list(s)
-        nuevo[pile_idx] -= amount
+        nuevo[pile_idx] -= amount    # aplica el movimiento
         return tuple(nuevo)
 
     def terminal(self, s):
-        return all(p == 0 for p in s)
+        return all(p == 0 for p in s)    # todas las pilas vacías
 
     def utilidad(self, s, es_max_turno):
-        # Quien llega al estado terminal (todas pilas vacías) acaba de tomar la última ficha → gana
-        # El jugador cuyo TURNO ES en el estado terminal no puede mover → pierde
-        # Si es_max_turno es True, es el turno de MAX en el estado terminal → MAX pierde → valor = -1
-        # Si es_max_turno es False, es el turno de MIN en el estado terminal → MIN pierde → valor = +1
+        # El jugador en turno no puede mover → pierde
+        # Si es el turno de MAX: MAX pierde → −1
+        # Si es el turno de MIN: MIN pierde → +1 (bueno para MAX)
         return -1 if es_max_turno else +1
 ```
 
-**¿Por qué Nim es útil para aprender?** El árbol de juego de Nim(1,2) tiene exactamente **12 nodos** — cabe completamente en una figura y podemos trazar minimax paso a paso sin perder el hilo. Veremos también que Nim esconde una propiedad matemática profunda que minimax *descubrirá* en la sección 15.5: el nim-sum XOR.
+**¿Por qué Nim y no tic-tac-toe para las trazas?** El árbol de Nim(1,2) tiene exactamente **12 nodos** — cabe en una figura y podemos seguir cada llamada a mano. El árbol de tic-tac-toe completo tiene hasta 362,880 nodos — imposible de trazar nodo por nodo.
 
 ---
 

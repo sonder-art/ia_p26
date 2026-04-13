@@ -28,10 +28,10 @@ En los módulos 13 y 14 resolvimos problemas donde un solo agente controla cada 
 |:----:|---------|:-----:|-------------|
 | 1 | [15.1 Juegos como búsqueda](01_juegos_como_busqueda.md) | — | 7 componentes formales, árbol de juego, tic-tac-toe y Nim |
 | 2 | [15.2 Tipos de juegos](02_tipos_de_juegos.md) | — | Suma cero, información perfecta, taxonomía |
-| 3 | [Notebook 01 — Juegos y árboles](notebooks/01_juegos_y_arboles.ipynb) | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Construir y visualizar árboles de juego para tic-tac-toe y Nim |
+| 3 | [Notebook 01 — Juegos y árboles](notebooks/01_juegos_y_arboles.ipynb) | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/01_juegos_y_arboles.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Construir y visualizar árboles de juego para tic-tac-toe y Nim |
 | 4 | [15.3 Minimax](03_minimax.md) | — | DFS con propagación de valores, traza Nim(1,2) |
 | 5 | [15.4 Poda alfa-beta](04_poda_alfa_beta.md) | — | Misma respuesta, menos trabajo; análisis de eficiencia |
-| 6 | [Notebook 02 — Minimax y alpha-beta](notebooks/02_minimax_y_alphabeta.ipynb) | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Implementar y comparar minimax vs alpha-beta paso a paso |
+| 6 | [Notebook 02 — Minimax y alpha-beta](notebooks/02_minimax_y_alphabeta.ipynb) | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/02_minimax_y_alphabeta.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> | Implementar y comparar minimax vs alpha-beta paso a paso |
 | 7 | [15.5 Juegos complejos](05_juegos_complejos.md) | — | Límite de profundidad, eval, nim-sum, ajedrez |
 | 8 | Notebook de aplicación (elige uno) | — | Exploración profunda en un dominio concreto |
 
@@ -41,8 +41,8 @@ Elige **uno** de los siguientes:
 
 | Notebook | Tema | Colab |
 |---------|------|:-----:|
-| [03 — Tic-tac-toe](notebooks/aplicaciones/03_tictactoe.ipynb) | Agente completo: minimax vs random vs alpha-beta, función eval, extensión 4×4 | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
-| [04 — Nim y teoría de juegos](notebooks/aplicaciones/04_nim_teoria.ipynb) | Minimax → patrón XOR → Sprague-Grundy | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
+| [03 — Tic-tac-toe](notebooks/aplicaciones/03_tictactoe.ipynb) | Agente completo: minimax vs random vs alpha-beta, función eval, extensión 4×4 | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/aplicaciones/03_tictactoe.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
+| [04 — Nim y teoría de juegos](notebooks/aplicaciones/04_nim.ipynb) | Minimax → patrón XOR → Sprague-Grundy | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/aplicaciones/04_nim.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
 
 ---
 

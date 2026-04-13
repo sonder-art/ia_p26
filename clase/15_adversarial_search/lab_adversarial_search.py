@@ -1897,11 +1897,397 @@ def plot_chess_complexity() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Alpha-cutoff example
+# ---------------------------------------------------------------------------
+
+def plot_alpha_cutoff_example():
+    """
+    Illustrates an alpha-cutoff on a small abstract game tree.
+    MAX root -> two MIN children -> 4 leaf nodes (one pruned).
+    Saves to 14_alpha_cutoff_example.png.
+    """
+    fig, (ax_tree, ax_table) = plt.subplots(1, 2, figsize=(16, 7))
+    fig.suptitle("Ejemplo de Poda Alfa (α-cutoff)", fontsize=15, fontweight="bold",
+                 color=COLORS["dark"])
+
+    # ------------------------------------------------------------------ tree
+    ax = ax_tree
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 7)
+    ax.axis("off")
+    ax.set_facecolor("white")
+
+    dark = COLORS["dark"]
+    r = 0.42   # circle radius
+    hs = 0.38  # half-size for squares
+
+    # helper: draw circle node
+    def draw_circle(cx, cy, color, lines, step_label, step_side="above"):
+        circ = plt.Circle((cx, cy), r, color=color, zorder=3)
+        ax.add_patch(circ)
+        ax.text(cx, cy + 0.07, lines[0], ha="center", va="center",
+                fontsize=8.5, fontweight="bold", color="white", zorder=4)
+        ax.text(cx, cy - 0.22, lines[1], ha="center", va="center",
+                fontsize=8, color="white", zorder=4)
+        sy = cy + r + 0.18 if step_side == "above" else cy - r - 0.22
+        ax.text(cx, sy, step_label, ha="center", va="center",
+                fontsize=8, color=COLORS["gray"], fontstyle="italic", zorder=4)
+
+    # helper: draw square leaf
+    def draw_square(cx, cy, color, label, step_label, alpha=1.0):
+        sq = plt.Rectangle((cx - hs, cy - hs), 2*hs, 2*hs,
+                            color=color, alpha=alpha, zorder=3)
+        ax.add_patch(sq)
+        ax.text(cx, cy, label, ha="center", va="center",
+                fontsize=11, fontweight="bold",
+                color="white" if alpha > 0.5 else COLORS["gray"], zorder=4)
+        ax.text(cx, cy - hs - 0.2, step_label, ha="center", va="top",
+                fontsize=8, color=COLORS["gray"], fontstyle="italic", zorder=4)
+
+    # --- nodes ---
+    draw_circle(5.0, 5.8, COLORS["blue"], ["MAX", "v=3"], "(1)")
+    draw_circle(2.0, 3.5, COLORS["red"],  ["MIN(L)", "v=3"], "(2)")
+    draw_circle(8.0, 3.5, COLORS["red"],  ["MIN(R)", "v=1*"], "(7)")
+
+    # alpha/beta labels beside MIN nodes
+    ax.text(0.3, 3.5, "α=-∞\nβ=+∞", ha="left", va="center",
+            fontsize=7.5, color=COLORS["gray"], fontstyle="italic", zorder=4)
+    # highlighted box beside MIN(R) showing inherited alpha
+    ax.text(9.9, 3.8, "α=3\nβ=+∞", ha="right", va="center",
+            fontsize=8, color=COLORS["orange"], fontweight="bold", zorder=4,
+            bbox=dict(boxstyle="round,pad=0.3", fc="#FEF9E7",
+                      ec=COLORS["orange"], lw=1.5))
+
+    # --- leaves ---
+    draw_square(0.9, 1.4, COLORS["green"], "3", "(3)")
+    draw_square(3.1, 1.4, COLORS["green"], "5", "(4)")
+    draw_square(6.8, 1.4, COLORS["green"], "1", "(8)")
+    draw_square(9.1, 1.4, COLORS["gray"],  "?", " ", alpha=0.4)
+    ax.text(9.1, 1.4 - hs - 0.35, "PODADO", ha="center", va="top",
+            fontsize=8, color=COLORS["red"], fontweight="bold", zorder=4)
+
+    # --- edges ---
+    def edge(x1, y1, x2, y2, style="solid", color=dark, alpha=1.0):
+        ls = "--" if style == "dashed" else "-"
+        ax.annotate("", xy=(x2, y2 + r + 0.02), xytext=(x1, y1 - r - 0.02),
+                    arrowprops=dict(arrowstyle="-", color=color,
+                                   lw=2, linestyle=ls, alpha=alpha),
+                    zorder=2)
+
+    # root -> MIN children
+    edge(5.0, 5.8, 2.0, 3.5)
+    edge(5.0, 5.8, 8.0, 3.5)
+    # MIN(L) -> leaves 3 and 5
+    edge(2.0, 3.5, 0.9, 1.4)
+    edge(2.0, 3.5, 3.1, 1.4)
+    # MIN(R) -> leaf 1
+    edge(8.0, 3.5, 6.8, 1.4)
+    # MIN(R) -> leaf ? (dashed + red X)
+    edge(8.0, 3.5, 9.1, 1.4, style="dashed", color=COLORS["gray"], alpha=0.5)
+    mid_x = (8.0 + 9.1) / 2
+    mid_y = (3.5 + 1.4 + r + 0.02 + hs + 0.02) / 2  # rough midpoint in y
+    mid_y = (3.5 - r - 0.02 + 1.4 + hs + 0.02) / 2
+    ax.text(mid_x + 0.1, mid_y, "✗", ha="center", va="center",
+            fontsize=16, color=COLORS["red"], fontweight="bold", zorder=5)
+
+    # --- annotations ---
+    # beta <= alpha → PODA
+    ax.annotate("β=1 ≤ α=3\n→ PODA!", xy=(8.4, 3.05), xytext=(10.0, 2.8),
+                fontsize=8.5, color=COLORS["red"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["red"], lw=1.5),
+                ha="right", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="#FDEDEC",
+                          ec=COLORS["red"], lw=1.5))
+    # alpha <- 3
+    ax.annotate("α ← 3\n(MAX garantiza ≥3)", xy=(4.6, 5.4), xytext=(1.0, 5.1),
+                fontsize=8.5, color=COLORS["orange"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["orange"], lw=1.5),
+                ha="left", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="#FEF9E7",
+                          ec=COLORS["orange"], lw=1.5))
+    # level labels at right margin
+    ax.text(9.8, 5.8, "MAX", ha="right", va="center",
+            fontsize=9, color=COLORS["blue"], fontweight="bold")
+    ax.text(9.8, 3.5, "MIN", ha="right", va="center",
+            fontsize=9, color=COLORS["red"], fontweight="bold")
+    ax.text(9.8, 1.4, "Hoja", ha="right", va="center",
+            fontsize=9, color=COLORS["green"], fontweight="bold")
+
+    # ------------------------------------------------------------------ table
+    ax2 = ax_table
+    ax2.set_xlim(0, 1)
+    ax2.set_ylim(-0.05, 1.05)
+    ax2.axis("off")
+    ax2.set_facecolor("white")
+
+    col_x = [0.0, 0.08, 0.21, 0.29, 0.37]
+    col_widths = [0.08, 0.13, 0.08, 0.08, 0.63]
+    headers = ["Paso", "Nodo", "α", "β", "Qué ocurre"]
+    row_h = 0.073
+    start_y = 0.965
+
+    rows = [
+        ("(1)", "MAX(root)",   "-∞", "+∞", "Inicio; llama a MIN(L)"),
+        ("(2)", "MIN(L)",      "-∞", "+∞", "Entra con α=-∞, β=+∞"),
+        ("(3)", "Hoja 3",      "-∞", "+∞", "Retorna 3 a MIN(L)"),
+        ("(4)", "MIN(L)",      "-∞", "3",  "v=3, β←min(+∞,3)=3"),
+        ("(5)", "Hoja 5",      "-∞", "3",  "Retorna 5 a MIN(L)"),
+        ("(6)", "MIN(L) ←",   "-∞", "3",  "5>v: v queda en 3; retorna 3"),
+        ("(7)", "MAX(root)",   "3",  "+∞", "α←max(-∞,3)=3; llama MIN(R)"),
+        ("(8)", "MIN(R)",      "3",  "+∞", "Entra con α=3, β=+∞"),
+        ("(9)", "Hoja 1",      "3",  "+∞", "Retorna 1 a MIN(R)"),
+        ("★",  "MIN(R) PODA", "3",  "1",  "β←1; β=1 ≤ α=3 → PODA! '?' no se explora"),
+        (" ",  "MAX(root) ←", "3",  "+∞", "max(3,1)=3; elige rama izquierda"),
+    ]
+
+    # header row
+    hy = start_y
+    for ci, (cx, cw, hdr) in enumerate(zip(col_x, col_widths, headers)):
+        rect = plt.Rectangle((cx, hy - row_h), cw, row_h,
+                              fc=COLORS["dark"], ec="white", lw=0.5, zorder=2,
+                              transform=ax2.transData)
+        ax2.add_patch(rect)
+        ax2.text(cx + cw / 2, hy - row_h / 2, hdr,
+                 ha="center", va="center", fontsize=8, color="white",
+                 fontweight="bold", zorder=3)
+
+    for ri, row in enumerate(rows):
+        ry = start_y - row_h * (ri + 1)
+        is_prune = (ri == 9)   # ★ row
+        is_alpha = (ri == 6)   # α←3 row
+
+        if is_prune:
+            bg = "#FDEDEC"
+            tc = COLORS["red"]
+            fw = "bold"
+        elif is_alpha:
+            bg = "#FEF9E7"
+            tc = COLORS["orange"]
+            fw = "bold"
+        else:
+            bg = "#F8F9FA" if ri % 2 == 0 else "white"
+            tc = COLORS["dark"]
+            fw = "normal"
+
+        for ci, (cx, cw, cell) in enumerate(zip(col_x, col_widths, row)):
+            rect = plt.Rectangle((cx, ry - row_h), cw, row_h,
+                                  fc=bg, ec="#DEE2E6", lw=0.4, zorder=2,
+                                  transform=ax2.transData)
+            ax2.add_patch(rect)
+            fs = 8 if ci < 4 else 7.5
+            ax2.text(cx + cw / 2, ry - row_h / 2, cell,
+                     ha="center", va="center", fontsize=fs,
+                     color=tc, fontweight=fw, zorder=3,
+                     wrap=False)
+
+    # insight box at bottom
+    insight = ("α=3: MAX ya tiene garantizado un valor de 3 desde MIN(L).\n"
+               "MIN(R) puede forzar a lo sumo 1. MAX jamás elegiría ir ahí.\n"
+               "El valor de '?' es completamente irrelevante.")
+    ax2.text(0.5, 0.04, insight, ha="center", va="center",
+             fontsize=9, color=COLORS["dark"],
+             transform=ax2.transAxes,
+             bbox=dict(boxstyle="round,pad=0.5", fc="#EBF5FB",
+                       ec=COLORS["blue"], lw=1.5))
+
+    fig.tight_layout()
+    _save(fig, "14_alpha_cutoff_example.png")
+
+
+# ---------------------------------------------------------------------------
+# Beta-cutoff example
+# ---------------------------------------------------------------------------
+
+def plot_beta_cutoff_example():
+    """
+    Illustrates a beta-cutoff on a small abstract game tree.
+    MIN root -> two MAX children -> 4 leaf nodes (one pruned).
+    Saves to 15_beta_cutoff_example.png.
+    """
+    fig, (ax_tree, ax_table) = plt.subplots(1, 2, figsize=(16, 7))
+    fig.suptitle("Ejemplo de Poda Beta (β-cutoff)", fontsize=15, fontweight="bold",
+                 color=COLORS["dark"])
+
+    # ------------------------------------------------------------------ tree
+    ax = ax_tree
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 7)
+    ax.axis("off")
+    ax.set_facecolor("white")
+
+    dark = COLORS["dark"]
+    r = 0.42
+    hs = 0.38
+
+    def draw_circle(cx, cy, color, lines, step_label):
+        circ = plt.Circle((cx, cy), r, color=color, zorder=3)
+        ax.add_patch(circ)
+        ax.text(cx, cy + 0.07, lines[0], ha="center", va="center",
+                fontsize=8.5, fontweight="bold", color="white", zorder=4)
+        ax.text(cx, cy - 0.22, lines[1], ha="center", va="center",
+                fontsize=8, color="white", zorder=4)
+        sy = cy + r + 0.18
+        ax.text(cx, sy, step_label, ha="center", va="center",
+                fontsize=8, color=COLORS["gray"], fontstyle="italic", zorder=4)
+
+    def draw_square(cx, cy, color, label, step_label, alpha=1.0):
+        sq = plt.Rectangle((cx - hs, cy - hs), 2*hs, 2*hs,
+                            color=color, alpha=alpha, zorder=3)
+        ax.add_patch(sq)
+        ax.text(cx, cy, label, ha="center", va="center",
+                fontsize=11, fontweight="bold",
+                color="white" if alpha > 0.5 else COLORS["gray"], zorder=4)
+        ax.text(cx, cy - hs - 0.2, step_label, ha="center", va="top",
+                fontsize=8, color=COLORS["gray"], fontstyle="italic", zorder=4)
+
+    # --- nodes ---
+    draw_circle(5.0, 5.8, COLORS["red"],  ["MIN", "v=8"], "(1)")
+    draw_circle(2.0, 3.5, COLORS["blue"], ["MAX(L)", "v=8"], "(2)")
+    draw_circle(8.0, 3.5, COLORS["blue"], ["MAX(R)", "v=9*"], "(7)")
+
+    # alpha/beta labels beside MAX nodes
+    ax.text(0.3, 3.5, "α=-∞\nβ=+∞", ha="left", va="center",
+            fontsize=7.5, color=COLORS["gray"], fontstyle="italic", zorder=4)
+    # highlighted box beside MAX(R) showing inherited beta
+    ax.text(9.9, 3.8, "α=-∞\nβ=8", ha="right", va="center",
+            fontsize=8, color=COLORS["orange"], fontweight="bold", zorder=4,
+            bbox=dict(boxstyle="round,pad=0.3", fc="#FEF9E7",
+                      ec=COLORS["orange"], lw=1.5))
+
+    # --- leaves ---
+    draw_square(0.9, 1.4, COLORS["blue"], "8", "(3)")
+    draw_square(3.1, 1.4, COLORS["blue"], "6", "(4)")
+    draw_square(6.8, 1.4, COLORS["blue"], "9", "(8)")
+    draw_square(9.1, 1.4, COLORS["gray"], "?", " ", alpha=0.4)
+    ax.text(9.1, 1.4 - hs - 0.35, "PODADO", ha="center", va="top",
+            fontsize=8, color=COLORS["red"], fontweight="bold", zorder=4)
+
+    # --- edges ---
+    def edge(x1, y1, x2, y2, style="solid", color=dark, alpha=1.0):
+        ls = "--" if style == "dashed" else "-"
+        ax.annotate("", xy=(x2, y2 + r + 0.02), xytext=(x1, y1 - r - 0.02),
+                    arrowprops=dict(arrowstyle="-", color=color,
+                                   lw=2, linestyle=ls, alpha=alpha),
+                    zorder=2)
+
+    edge(5.0, 5.8, 2.0, 3.5)
+    edge(5.0, 5.8, 8.0, 3.5)
+    edge(2.0, 3.5, 0.9, 1.4)
+    edge(2.0, 3.5, 3.1, 1.4)
+    edge(8.0, 3.5, 6.8, 1.4)
+    edge(8.0, 3.5, 9.1, 1.4, style="dashed", color=COLORS["gray"], alpha=0.5)
+    mid_x = (8.0 + 9.1) / 2
+    mid_y = (3.5 - r - 0.02 + 1.4 + hs + 0.02) / 2
+    ax.text(mid_x + 0.1, mid_y, "✗", ha="center", va="center",
+            fontsize=16, color=COLORS["red"], fontweight="bold", zorder=5)
+
+    # --- annotations ---
+    ax.annotate("α=9 ≥ β=8\n→ PODA!", xy=(8.4, 3.05), xytext=(10.0, 2.8),
+                fontsize=8.5, color=COLORS["red"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["red"], lw=1.5),
+                ha="right", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="#FDEDEC",
+                          ec=COLORS["red"], lw=1.5))
+    ax.annotate("β ← 8\n(MIN puede forzar ≤8)", xy=(4.6, 5.4), xytext=(1.0, 5.1),
+                fontsize=8.5, color=COLORS["orange"],
+                arrowprops=dict(arrowstyle="->", color=COLORS["orange"], lw=1.5),
+                ha="left", va="center",
+                bbox=dict(boxstyle="round,pad=0.3", fc="#FEF9E7",
+                          ec=COLORS["orange"], lw=1.5))
+    # level labels at right margin
+    ax.text(9.8, 5.8, "MIN", ha="right", va="center",
+            fontsize=9, color=COLORS["red"], fontweight="bold")
+    ax.text(9.8, 3.5, "MAX", ha="right", va="center",
+            fontsize=9, color=COLORS["blue"], fontweight="bold")
+    ax.text(9.8, 1.4, "Hoja", ha="right", va="center",
+            fontsize=9, color=COLORS["teal"], fontweight="bold")
+
+    # ------------------------------------------------------------------ table
+    ax2 = ax_table
+    ax2.set_xlim(0, 1)
+    ax2.set_ylim(-0.05, 1.05)
+    ax2.axis("off")
+    ax2.set_facecolor("white")
+
+    col_x = [0.0, 0.08, 0.21, 0.29, 0.37]
+    col_widths = [0.08, 0.13, 0.08, 0.08, 0.63]
+    headers = ["Paso", "Nodo", "α", "β", "Qué ocurre"]
+    row_h = 0.073
+    start_y = 0.965
+
+    rows = [
+        ("(1)", "MIN(root)",   "-∞", "+∞", "Inicio; llama a MAX(L)"),
+        ("(2)", "MAX(L)",      "-∞", "+∞", "Entra con α=-∞, β=+∞"),
+        ("(3)", "Hoja 8",      "-∞", "+∞", "Retorna 8 a MAX(L)"),
+        ("(4)", "MAX(L)",      "8",  "+∞", "v=8, α←max(-∞,8)=8"),
+        ("(5)", "Hoja 6",      "8",  "+∞", "Retorna 6 a MAX(L)"),
+        ("(6)", "MAX(L) ←",   "8",  "+∞", "6<v: v queda en 8; retorna 8"),
+        ("(7)", "MIN(root)",   "-∞", "8",  "β←min(+∞,8)=8; llama MAX(R)"),
+        ("(8)", "MAX(R)",      "-∞", "8",  "Entra con α=-∞, β=8"),
+        ("(9)", "Hoja 9",      "-∞", "8",  "Retorna 9 a MAX(R)"),
+        ("★",  "MAX(R) PODA", "9",  "8",  "α←9; α=9 ≥ β=8 → PODA! '?' no se explora"),
+        (" ",  "MIN(root) ←", "-∞", "8",  "min(8,9)=8; elige rama izquierda"),
+    ]
+
+    # header row
+    hy = start_y
+    for ci, (cx, cw, hdr) in enumerate(zip(col_x, col_widths, headers)):
+        rect = plt.Rectangle((cx, hy - row_h), cw, row_h,
+                              fc=COLORS["dark"], ec="white", lw=0.5, zorder=2,
+                              transform=ax2.transData)
+        ax2.add_patch(rect)
+        ax2.text(cx + cw / 2, hy - row_h / 2, hdr,
+                 ha="center", va="center", fontsize=8, color="white",
+                 fontweight="bold", zorder=3)
+
+    for ri, row in enumerate(rows):
+        ry = start_y - row_h * (ri + 1)
+        is_prune = (ri == 9)
+        is_beta = (ri == 6)
+
+        if is_prune:
+            bg = "#FDEDEC"
+            tc = COLORS["red"]
+            fw = "bold"
+        elif is_beta:
+            bg = "#FEF9E7"
+            tc = COLORS["orange"]
+            fw = "bold"
+        else:
+            bg = "#F8F9FA" if ri % 2 == 0 else "white"
+            tc = COLORS["dark"]
+            fw = "normal"
+
+        for ci, (cx, cw, cell) in enumerate(zip(col_x, col_widths, row)):
+            rect = plt.Rectangle((cx, ry - row_h), cw, row_h,
+                                  fc=bg, ec="#DEE2E6", lw=0.4, zorder=2,
+                                  transform=ax2.transData)
+            ax2.add_patch(rect)
+            fs = 8 if ci < 4 else 7.5
+            ax2.text(cx + cw / 2, ry - row_h / 2, cell,
+                     ha="center", va="center", fontsize=fs,
+                     color=tc, fontweight=fw, zorder=3)
+
+    # insight box at bottom
+    insight = ("β=8: MIN ya puede forzar que MAX obtenga como máximo 8 desde MAX(L).\n"
+               "MAX(R) puede ofrecer al menos 9. MIN jamás lo permitiría.\n"
+               "El valor de '?' es completamente irrelevante.")
+    ax2.text(0.5, 0.04, insight, ha="center", va="center",
+             fontsize=9, color=COLORS["dark"],
+             transform=ax2.transAxes,
+             bbox=dict(boxstyle="round,pad=0.5", fc="#EBF5FB",
+                       ec=COLORS["blue"], lw=1.5))
+
+    fig.tight_layout()
+    _save(fig, "15_beta_cutoff_example.png")
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
 def main():
-    """Generate all 13 images for the adversarial search module."""
+    """Generate all 15 images for the adversarial search module."""
     plot_single_vs_adversarial()
     plot_tictactoe_anatomy()
     plot_nim_rules_and_tree()
@@ -1915,6 +2301,8 @@ def main():
     plot_nim_xor_pattern()
     plot_depth_limit_eval()
     plot_chess_complexity()
+    plot_alpha_cutoff_example()
+    plot_beta_cutoff_example()
 
 
 if __name__ == "__main__":

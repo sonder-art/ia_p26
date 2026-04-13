@@ -4,7 +4,7 @@ title: "Tipos de juegos"
 
 | Notebook | Colab |
 |---------|:-----:|
-| Notebook 01 — Juegos y árboles | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
+| Notebook 01 — Juegos y árboles | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/01_juegos_y_arboles.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
 
 ---
 

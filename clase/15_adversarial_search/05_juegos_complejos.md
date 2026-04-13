@@ -4,7 +4,7 @@ title: "Juegos complejos"
 
 | Notebook | Colab |
 |---------|:-----:|
-| Notebook 02 — Minimax y alpha-beta | <a href="COLAB_URL" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
+| Notebook 02 — Minimax y alpha-beta | <a href="https://colab.research.google.com/github/sonder-art/ia_p26/blob/main/clase/15_adversarial_search/notebooks/02_minimax_y_alphabeta.ipynb" target="_blank"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"></a> |
 
 ---
 
@@ -37,33 +37,58 @@ Incluso $10^{17}$ nodos es difícil para ajedrez — los mejores motores manejan
 
 ## 2. Adaptación 1: límite de profundidad
 
-Reemplazamos la condición `Terminal(s)` por `Terminal(s) OR profundidad == 0`:
+En minimax exacto el único caso base es `Terminal(s)` — el juego terminó. Con límite de profundidad añadimos una segunda condición de parada: `profundidad == 0`. Cuando se alcanza ese nivel, en vez de devolver la utilidad real (que no sabemos porque no llegamos a las hojas), devolvemos una **estimación** `EVALUAR(s)`.
 
 ```
+# ── MINIMAX_LIMITADO ─────────────────────────────────────────────────────────
+# Igual que MINIMAX, con un parámetro adicional: la profundidad restante.
+# Cuando profundidad llega a 0 nos detenemos aunque el juego no haya terminado
+# y usamos EVALUAR(s) para estimar el valor de esa posición.
+#
+# Parámetros:
+#   juego       : objeto con los 7 componentes (acciones, resultado, terminal, etc.)
+#   estado      : configuración actual del tablero
+#   profundidad : cuántos niveles más podemos bajar (decrece en cada llamada)
+#   es_max      : True si le toca a MAX, False si le toca a MIN
+
 function MINIMAX_LIMITADO(juego, estado, profundidad, es_max):
 
-    # ── Caso base modificado ────────────────────────────────────────────────
-    if juego.terminal(estado) or profundidad == 0:   # [P1] dos condiciones
-        return EVALUAR(estado, es_max), None          # [P1] eval en vez de utilidad exacta
+    # ── Caso base ────────────────────────────────────────────────────────────
+    # Hay DOS razones para parar:
+    #   1. El juego terminó realmente → devolvemos utilidad exacta
+    #   2. Llegamos al límite de profundidad → devolvemos estimación eval
+    # En minimax exacto solo existía la razón 1; este es el cambio [P1].
+    if juego.terminal(estado) or profundidad == 0:   # [P1] condición de corte ampliada
+        return EVALUAR(estado, es_max), None          # [P1] EVALUAR sustituye a UTILIDAD en el corte
 
-    # ── El resto es idéntico a MINIMAX ──────────────────────────────────────
-    mejor_valor = -float('inf') if es_max else float('inf')
-    mejor_accion = None
+    # ── Inicialización (idéntica a MINIMAX) ──────────────────────────────────
+    mejor_valor = -∞ if es_max else +∞   # MAX quiere maximizar, MIN quiere minimizar
+    mejor_accion = None                   # guardará la acción que produce mejor_valor
 
-    for accion in juego.acciones(estado):
-        sucesor = juego.resultado(estado, accion)
-        v, _ = MINIMAX_LIMITADO(juego, sucesor, profundidad - 1, not es_max)
-        if es_max and v > mejor_valor:
-            mejor_valor = v
-            mejor_accion = accion
-        elif not es_max and v < mejor_valor:
-            mejor_valor = v
-            mejor_accion = accion
+    # ── Exploración de sucesores ─────────────────────────────────────────────
+    for accion in juego.acciones(estado):               # recorre cada movimiento legal
+        sucesor ← juego.resultado(estado, accion)       # aplica la acción → estado hijo
+        v, _ ← MINIMAX_LIMITADO(juego, sucesor,
+                                 profundidad - 1,       # baja un nivel (acerca al corte)
+                                 not es_max)            # alterna el turno
+        if es_max and v > mejor_valor:                  # ¿MAX encontró algo mejor?
+            mejor_valor ← v
+            mejor_accion ← accion
+        elif not es_max and v < mejor_valor:            # ¿MIN encontró algo peor para MAX?
+            mejor_valor ← v
+            mejor_accion ← accion
 
-    return mejor_valor, mejor_accion
+    return mejor_valor, mejor_accion   # propaga el mejor valor encontrado hacia arriba
 ```
 
-Solo **dos líneas** cambian: la condición de parada y la función que evalúa el estado al corte. El árbol se trunca antes de las hojas reales; en el corte, `EVALUAR` reemplaza a `UTILIDAD`.
+**Los dos cambios sobre MINIMAX exacto:**
+
+| Cambio | Línea | Qué hace |
+|---|---|---|
+| `[P1a]` | condición de parada | Añade `or profundidad == 0` — detiene la búsqueda aunque el juego no haya terminado |
+| `[P1b]` | valor de retorno en el corte | Llama a `EVALUAR(s)` en lugar de `UTILIDAD(s)` — estima el valor porque no conocemos el resultado exacto |
+
+El resto del algoritmo es **idéntico** a minimax: misma alternancia MAX/MIN, misma propagación de valores hacia arriba, misma estructura recursiva.
 
 ![Límite de profundidad y eval]({{ '/15_adversarial_search/images/12_depth_limit_eval.png' | url }})
 
@@ -84,7 +109,7 @@ Propiedades que debe cumplir `eval(s)`:
 
 Para ajedrez, una función clásica combina características de la posición:
 
-$$eval(s) = w_1 \cdot \text{material}(s) + w_2 \cdot \text{posición}(s) + w_3 \cdot \text{estructura\_peones}(s) + \cdots$$
+$$eval(s) = w_1 \cdot \text{material}(s) + w_2 \cdot \text{posición}(s) + w_3 \cdot \text{estructura-peones}(s) + \cdots$$
 
 Los pesos $w_i$ se calibran contra una base de datos de partidas o por auto-juego. Los motores modernos aprenden estos pesos con redes neuronales.
 
