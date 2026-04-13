@@ -86,12 +86,22 @@ module.exports = function(eleventyConfig) {
   eleventyConfig.addPassthroughCopy("09_*/images/**");
   eleventyConfig.addPassthroughCopy("10_*/images/**");
   eleventyConfig.addPassthroughCopy("11_*/images/**");
+  eleventyConfig.addPassthroughCopy("12_*/images/**");
+  eleventyConfig.addPassthroughCopy("13_*/images/**");
+  eleventyConfig.addPassthroughCopy("14_*/images/**");
+  eleventyConfig.addPassthroughCopy("15_*/images/**");
+  eleventyConfig.addPassthroughCopy("16_*/images/**");
+  eleventyConfig.addPassthroughCopy("17_*/images/**");
+  eleventyConfig.addPassthroughCopy("18_*/images/**");
+  eleventyConfig.addPassthroughCopy("19_*/images/**");
+  eleventyConfig.addPassthroughCopy("20_*/images/**");
   eleventyConfig.addPassthroughCopy("a_*/images/**");
   eleventyConfig.addPassthroughCopy("a_*/**/images/**");
 
   // Copy PDF files from content directories (exclude b_libros which is gitignored)
   // Match all PDFs in numbered directories (01_, 02_, 03_, etc.)
-  ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'].forEach(num => {
+  ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11',
+   '12', '13', '14', '15', '16', '17', '18', '19', '20'].forEach(num => {
     eleventyConfig.addPassthroughCopy(`${num}_*/**/*.pdf`);
   });
   // Match all PDFs in appendix directories
