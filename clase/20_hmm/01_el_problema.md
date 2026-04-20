@@ -56,9 +56,16 @@ Para fijar la intuición, así es exactamente como un HMM *genera* una secuencia
 
 El resultado es una secuencia de estados ocultos $q_1, q_2, \ldots, q_T$ y una secuencia de observaciones $O_1, O_2, \ldots, O_T$. Nosotros solo vemos la segunda; la primera es lo que queremos inferir.
 
+**Notación: $O$, $O_t$ y el índice de emisión.** En todo el módulo distinguimos dos objetos:
+
+- $O = (O_1, O_2, \ldots, O_T)$ — la secuencia **completa** de observaciones (sin subíndice). Es el vector que Lain registra a lo largo de los $T$ días; es la entrada a todos los algoritmos del módulo.
+- $O_t$ (con subíndice $t$) — el **valor** de la observación en el instante $t$: un entero en $\{0, 1, \ldots, M-1\}$. No es un nombre abstracto sino un número concreto. Por ejemplo, $O_2 = 1$ significa "en el día 2 se observó el símbolo 1 (con paraguas)".
+
+Este valor $O_t$ actúa como **índice de columna** en la matriz de emisión $B$. La notación $B_{i,O_t}$ selecciona la entrada de la fila $i$ y la columna $O_t$: si $O_t = 0$, entonces $B_{i,O_t} = B_{i,0}$; si $O_t = 1$, entonces $B_{i,O_t} = B_{i,1}$. En cualquier cálculo concreto, sustituye $O_t$ por el número que corresponde al instante $t$.
+
 **Probabilidad conjunta.** La probabilidad de una trayectoria específica de estados **y** observaciones factoriza directamente del proceso generativo:
 
-$$P(O_1, \ldots, O_T,\; q_1, \ldots, q_T \mid \lambda) = \pi_{q_1} \cdot B_{q_1, O_1} \cdot \prod_{t=2}^{T} A_{q_{t-1}, q_t} \cdot B_{q_t, O_t}$$
+$$P(O_1, \ldots, O_T, q_1, \ldots, q_T \mid \lambda) = \pi_{q_1} \cdot B_{q_1, O_1} \cdot \prod_{t=2}^{T} A_{q_{t-1}, q_t} \cdot B_{q_t, O_t}$$
 
 Para el ejemplo de Lain con $T=3$, $q = (S, R, R)$ y $O = (0, 1, 1)$:
 
@@ -79,7 +86,7 @@ Un HMM queda completamente especificado por cinco objetos. Al conjunto completo 
 | $M$ | Número de observaciones | escalar | Cuántos símbolos de observación posibles hay |
 | $\pi_i$ | Distribución inicial | vector $N$ | $P(q_1 = i)$ — probabilidad de comenzar en el estado $i$ |
 | $A_{ij}$ | Matriz de transición | $N \times N$ | $P(q_{t+1} = j \mid q_t = i)$ — probabilidad de pasar del estado $i$ al $j$ |
-| $B_{ik}$ | Matriz de emisión | $N \times M$ | $P(O_t = k \mid q_t = i)$ — probabilidad de observar $k$ estando en el estado $i$ |
+| $B_{ik}$ | Matriz de emisión | $N \times M$ | $P(O_t = k \mid q_t = i)$ — probabilidad de emitir el símbolo $k$ desde el estado $i$; aquí $k \in \{0, \ldots, M-1\}$ es el valor observado y actúa como **índice de columna** |
 
 Restricciones (todo debe ser una distribución de probabilidad válida):
 

@@ -74,6 +74,44 @@ P_OBS   = 0.10007
 A_HAT   = np.array([[0.159, 0.841], [0.071, 0.929]])
 B_HAT   = np.array([[0.780, 0.220], [0.105, 0.895]])
 
+# ── POS tagging example parameters (D=0, N=1, V=2) ────────────────────────────
+PI_POS = np.array([0.8, 0.1, 0.1])   # D, N, V
+
+A_POS = np.array([
+    [0.0, 0.9, 0.1],   # D → D, N, V
+    [0.0, 0.5, 0.5],   # N → D, N, V
+    [0.3, 0.5, 0.2],   # V → D, N, V
+])
+
+# Columns: "the"=0, "fans"=1, "watch"=2, "race"=3
+B_POS = np.array([
+    [0.20, 0.00, 0.00, 0.00],   # D
+    [0.00, 0.10, 0.30, 0.10],   # N
+    [0.00, 0.20, 0.25, 0.30],   # V
+])
+
+WORDS_POS  = ["the", "fans", "watch", "the", "race"]
+STATES_POS = ["D", "N", "V"]
+OBS_POS    = [0, 1, 2, 0, 3]   # column index into B_POS for each word
+
+# δ values: shape (T=5, N=3); 0.0 = dead node
+DELTA_POS = np.array([
+    [0.16000,  0.0,      0.0      ],   # t=1
+    [0.0,      0.01440,  0.00320  ],   # t=2
+    [0.0,      0.00216,  0.00180  ],   # t=3
+    [0.000108, 0.0,      0.0      ],   # t=4
+    [0.0,      9.72e-6,  3.24e-6  ],   # t=5
+])
+
+# ψ backpointers: index of predecessor state, -1 = no backpointer (t=1 or dead)
+PSI_POS = np.array([
+    [-1, -1, -1],   # t=1
+    [-1,  0,  0],   # t=2: N←D, V←D
+    [-1,  1,  1],   # t=3: N←N, V←N
+    [ 2, -1, -1],   # t=4: D←V
+    [-1,  0,  0],   # t=5: N←D, V←D
+])
+
 
 # ── Helper ─────────────────────────────────────────────────────────────────────
 def _save(fig, name):
@@ -751,6 +789,142 @@ def plot_viterbi_trellis():
     _save(fig, "07_viterbi_trellis.png")
 
 
+# ── Plot 10: POS Viterbi trellis (T=5, N=3) ─────────────────────────────────────
+def plot_pos_viterbi_trellis():
+    T_POS = 5
+    N_POS = 3
+
+    xs = [1.0, 2.6, 4.2, 5.8, 7.4]   # time-step x positions
+    ys = [2.0, 1.0, 0.0]              # D, N, V (top → bottom)
+    r  = 0.28
+
+    # Optimal path: (t, state) pairs
+    opt_path = {(0, 0), (1, 1), (2, 2), (3, 0), (4, 1)}   # D→N→V→D→N
+    opt_edges = {((0,0),(1,1)), ((1,1),(2,2)), ((2,2),(3,0)), ((3,0),(4,1))}
+
+    # Color for alive nodes: log-scaled intensity in green palette
+    alive_vals = DELTA_POS[DELTA_POS > 0]
+    log_min = np.log(alive_vals.min())
+    log_max = np.log(alive_vals.max())
+
+    def node_color(val):
+        if val <= 0:
+            return (0.78, 0.78, 0.78)   # grey for dead nodes
+        intensity = 0.28 + 0.72 * (np.log(val) - log_min) / (log_max - log_min + 1e-12)
+        base  = np.array([0x27, 0xAE, 0x60]) / 255   # green
+        white = np.array([1.0, 1.0, 1.0])
+        c = white * (1 - intensity) + base * intensity
+        return (float(c[0]), float(c[1]), float(c[2]))
+
+    fig, ax = plt.subplots(figsize=(16, 6))
+    ax.set_xlim(0.1, 8.5)
+    ax.set_ylim(-1.6, 3.0)
+    ax.set_aspect("equal")
+    ax.axis("off")
+    ax.set_title(
+        r"Viterbi POS Tagging — $\delta_t(j)$ = mejor camino hasta estado $j$ en instante $t$",
+        fontsize=12, fontweight="bold", pad=16
+    )
+
+    # State labels (left side)
+    for s, (y, name) in enumerate(zip(ys, STATES_POS)):
+        ax.text(xs[0] - 0.75, y, name, ha="center", va="center",
+                fontsize=15, fontweight="bold", color=COLORS["dark"])
+
+    # Word / time labels (bottom)
+    for t, (x, word) in enumerate(zip(xs, WORDS_POS)):
+        ax.text(x, ys[2] - 0.55, f"t={t+1}\n\"{word}\"", ha="center", va="top",
+                fontsize=9, color=COLORS["gray"])
+
+    # Transition edges between alive nodes (skip zero-A transitions)
+    for t in range(T_POS - 1):
+        for s_from in range(N_POS):
+            for s_to in range(N_POS):
+                if DELTA_POS[t, s_from] == 0:
+                    continue
+                if A_POS[s_from, s_to] == 0:
+                    continue
+                x0, y0 = xs[t],     ys[s_from]
+                x1, y1 = xs[t + 1], ys[s_to]
+                edge   = ((t, s_from), (t + 1, s_to))
+                is_opt = edge in opt_edges
+                lc = COLORS["green"] if is_opt else COLORS["gray"]
+                lw = 3.5 if is_opt else 0.8
+                al = 1.0 if is_opt else 0.30
+                ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
+                            arrowprops=dict(arrowstyle="->", color=lc, lw=lw,
+                                           shrinkA=r * 72, shrinkB=r * 72,
+                                           connectionstyle="arc3,rad=0.0"),
+                            alpha=al, zorder=2)
+
+    # Backpointer arrows (orange, curved)
+    for t in range(1, T_POS):
+        for s_to in range(N_POS):
+            s_from = PSI_POS[t, s_to]
+            if s_from < 0 or DELTA_POS[t, s_to] == 0:
+                continue
+            x0, y0 = xs[t - 1], ys[s_from]
+            x1, y1 = xs[t],     ys[s_to]
+            ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
+                        arrowprops=dict(arrowstyle="-|>",
+                                       color=COLORS["orange"], lw=2.0,
+                                       shrinkA=r * 72, shrinkB=r * 72,
+                                       connectionstyle="arc3,rad=0.28"),
+                        alpha=0.85, zorder=3)
+
+    # Draw nodes
+    for t, x in enumerate(xs):
+        for s, y in enumerate(ys):
+            val      = DELTA_POS[t, s]
+            is_alive = (val > 0)
+            col      = node_color(val)
+            node_a   = 1.0 if is_alive else 0.30
+
+            circle = plt.Circle((x, y), r, color=col, zorder=4,
+                               alpha=node_a, linewidth=1.5, edgecolor="white")
+            ax.add_patch(circle)
+
+            if is_alive:
+                if val >= 1e-3:
+                    num = f"{val:.5f}"
+                elif val >= 1e-5:
+                    num = f"{val:.6f}"
+                else:
+                    num = f"{val:.2e}"
+                lbl = f"$\\delta_{{{t+1}}}({STATES_POS[s]})$\n{num}"
+                tc  = "white"
+            else:
+                lbl = "—"
+                tc  = COLORS["gray"]
+
+            ax.text(x, y, lbl, ha="center", va="center", fontsize=7.5,
+                    fontweight="bold", color=tc, zorder=5)
+
+    # Pruning annotation at t=3 (index 2) — Poda tipo 1
+    ax.text(xs[2], ys[0] + 0.52,
+            "Poda tipo 1\n(regla del máximo)",
+            ha="center", va="bottom", fontsize=8, color=COLORS["red"],
+            fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="#FDEDEC",
+                      edgecolor=COLORS["red"], alpha=0.92))
+
+    # Pruning annotation at t=4 (index 3) — Poda tipo 2
+    ax.text(xs[3], ys[0] + 0.52,
+            "Poda tipo 2\n" + r"$A(N{\to}D)=0$",
+            ha="center", va="bottom", fontsize=8, color=COLORS["purple"],
+            fontweight="bold",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="#E8DAEF",
+                      edgecolor=COLORS["purple"], alpha=0.92))
+
+    # Legend
+    ax.text(4.2, ys[2] - 1.25,
+            "Línea verde gruesa = camino óptimo  D→N→V→D→N  |  "
+            "Flechas naranjas = backpointers ψ  |  Nodos grises = δ=0 (muertos)",
+            ha="center", va="top", fontsize=8, color=COLORS["gray"])
+
+    _save(fig, "10_pos_viterbi_trellis.png")
+
+
 # ── Plot 08: Baum-Welch convergence ─────────────────────────────────────────────
 def plot_baum_welch_convergencia():
     rng      = np.random.default_rng(42)
@@ -879,6 +1053,7 @@ def main():
     plot_forward_vs_backward()
     plot_gamma_posteriors()
     plot_viterbi_trellis()
+    plot_pos_viterbi_trellis()
     plot_baum_welch_convergencia()
     plot_parametros_antes_despues()
     print("Listo.")
