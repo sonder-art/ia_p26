@@ -13,10 +13,6 @@ Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certi
 2. El progreso al 100%
 3. Tu usuario logueado
 
----
-
-# Evidencia: Introduction to Python for Data Science
-
 Nombre del Estudiante: Regina Cabral Corres
 Fecha: 26/01/2026
 
@@ -32,4 +28,6 @@ Por favor, inserta aquí abajo una captura de pantalla clara donde se vea:
 ```
 
 o enlace al certificado público:
+https://www.datacamp.com/completed/statement-of-accomplishment/course/df7524789b132b3ce9ba6454d09c0e4d62f209f3
+
 https://www.datacamp.com/completed/statement-of-accomplishment/course/df7524789b132b3ce9ba6454d09c0e4d62f209f3
