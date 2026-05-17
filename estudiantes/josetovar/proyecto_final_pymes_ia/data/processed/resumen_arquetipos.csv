@@ -1,0 +1,6 @@
+arquetipo,numero_clientes,score_promedio,num_transacciones_promedio,dias_activos_promedio,gasto_total_promedio,ingresos_totales_promedio,ticket_promedio_promedio,num_comercios_distintos_promedio,num_categorias_distintas_promedio,pagos_recurrentes_promedio,depositos_recurrentes_promedio,uso_credito_promedio,revolvencia_promedio,concentracion_proveedores_promedio,estacionalidad_promedio
+Negocio digital,121,0.6945,95.2231,118.2066,56509.1859,73132.3726,606.2946,30.8512,9.3058,6.595,4.1488,0.3387,0.2359,0.3111,0.2231
+Profesionista independiente,85,0.7014,72.4588,101.2941,86624.5949,119344.4724,1188.5756,30.6,8.4,6.2824,2.9882,0.3445,0.255,0.2282,0.2038
+Operador estacional,70,0.7488,133.8857,120.6571,163911.9256,220510.651,1212.1244,30.6429,8.0571,8.5286,6.0143,0.3284,0.2241,0.2367,0.2287
+Comerciante intensivo,61,0.7318,170.1311,111.1148,121605.5103,164540.7139,722.4197,33.5082,8.082,14.8197,8.9344,0.2556,0.2124,0.2158,0.1892
+Dependiente de crédito,13,0.6874,125.1538,120.9231,93752.3415,125026.2738,776.1038,36.8462,8.6154,9.3077,5.7692,0.3398,0.3046,0.2578,0.2531
