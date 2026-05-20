@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+dataset_backup_*.csv
+.env
+.streamlit/secrets.toml

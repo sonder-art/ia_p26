@@ -1,0 +1,11 @@
+mediapipe==0.10.14
+opencv-python
+scikit-learn
+pandas
+numpy
+openai
+streamlit
+streamlit-webrtc
+tornado
+joblib
+av
