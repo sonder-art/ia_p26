@@ -1,12 +1,12 @@
 ---
-title: "Plantilla: Evidencia GitHub Concepts"
+title: "Plantilla: Evidencia Intermediate Network Analysis in Python"
 ---
 
 # Plantilla de Entrega
 
 Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certificaciones/` para entregar la evidencia del curso.
 
-**Curso:** [Introduction to GitHub Concepts](https://app.datacamp.com/learn/courses/introduction-to-github-concepts)
+**Curso:** [Intermediate Network Analysis in Python](https://app.datacamp.com/learn/courses/intermediate-network-analysis-in-python)
 
 **Requisitos de la evidencia:**
 1. El nombre del curso
@@ -15,10 +15,10 @@ Esta es la plantilla que debes copiar a tu carpeta `estudiantes/tu_usuario/certi
 
 ---
 
-# Evidencia: Introduction to GitHub Concepts
+# Evidencia: Intermediate Network Analysis in Python
 
-Nombre del Estudiante: [Tu Nombre Aquí]
-Fecha: [Fecha]
+Nombre del Estudiante: Karol Josafat Cisneros Suárez
+Fecha: 23 de febrero de 2026
 
 ## Prueba de Finalización
 
@@ -28,7 +28,7 @@ Por favor, inserta aquí abajo una captura de pantalla clara donde se vea:
 3.  Tu usuario logueado.
 
 
-![Evidencia GitHub](./evidencia_github.png)
+![Evidencia GitHub](./nodosPython.png)
 
 
 o enlace al certificado público:

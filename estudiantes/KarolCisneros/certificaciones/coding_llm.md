@@ -22,9 +22,9 @@ Fecha: [Fecha]
 
 ## Prueba de Finalización
 
-```markdown
+
 ![Evidencia LLM](./evidencia_llm.png)
-```
+
 
 o enlace al certificado público:
 [Pegar Link Aquí]
